@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: brt-service
+server:
+  port: 8081

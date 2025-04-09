@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: cdr-service
+server:
+  port: 8082
