@@ -1,5 +1,17 @@
 spring:
-  application:
-    name: cdr-service
-server:
-  port: 8082
+  datasource:
+    url: jdbc:h2:file:/data/h2db
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database-platform: org.hibernate.dialect.H2Dialect
+  profiles:
+    active: dev
+
