@@ -1,0 +1,13 @@
+server:
+  port: 8761
+  servlet:
+    context-path: /  # Явно указываем корневой контекст
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+
+spring:
+  application:
+    name: eureka-server

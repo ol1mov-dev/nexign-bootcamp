@@ -1,7 +1,8 @@
 spring:
+# H2 Database
   datasource:
     url: jdbc:h2:file:/data/h2db
-    username: sa
+    username: admin
     password:
   h2:
     console:
@@ -14,4 +15,15 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
   profiles:
     active: dev
+# RabbitMQ
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+  application:
+    name: cdr-service
 
+
+server:
+  port: 8081
