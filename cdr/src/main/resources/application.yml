@@ -1,29 +1,49 @@
 spring:
-# H2 Database
+  application:
+    name: cdr-service
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/sql/schema.sql
+      data-locations:  classpath:db/sql/data.sql
+  # H2 DB Datasource
   datasource:
-    url: jdbc:h2:file:/data/h2db
+    url: jdbc:h2:mem:testdb
     username: admin
     password:
+# H2 DB
   h2:
     console:
       enabled: true
       path: /h2-console
+# Liquibase
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/changelog-master.yaml
+# Data JPA
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
     database-platform: org.hibernate.dialect.H2Dialect
   profiles:
     active: dev
 # RabbitMQ
   rabbitmq:
     host: localhost
-    port: 5672
-    username: guest
-    password: guest
-  application:
-    name: cdr-service
-
-
+    port: 5671
+    username: admin
+    password: password
+# Server
 server:
   port: 8081
+# Eureka
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
+
+cdr-reports:
+  path: src/main/java/reports
+

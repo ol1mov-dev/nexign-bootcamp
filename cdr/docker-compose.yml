@@ -1,19 +1,19 @@
 version: '3.8'
 
 services:
-  app:
-    build: .
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: rabbitmq
+    hostname: rabbitmq
     ports:
-      - "8080:8080"
+      - "5671:5671"
+      - "15671:15671"
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_DATASOURCE_URL=jdbc:h2:file:/data/h2db
-      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.h2.Driver
-      - SPRING_DATASOURCE_USERNAME=sa
-      - SPRING_DATASOURCE_PASSWORD=
-      - SPRING_H2_CONSOLE_ENABLED=true
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=password
     volumes:
-      - h2data:/data
+      - rabbitmq_data:/var/lib/rabbitmq
+    restart: unless-stopped
 
 volumes:
-  h2data:
+  rabbitmq_data:
