@@ -1,0 +1,20 @@
+databaseChangeLog:
+    - changeSet:
+        id: 1
+        author: manuchehr
+        changes:
+            - sqlFile:
+                path: db/scripts/01-create-tariffs-table.sql
+                dbms: postgresql
+                relativeToChangelogFile: true
+                encoding: utf8
+                splitStatements: true
+                stripComments: true
+        rollback:
+            - sqlFile:
+                  path: db/scripts/01-drop-tariffs-table.sql.sql
+                  dbms: postgresql
+                  relativeToChangelogFile: true
+                  encoding: utf8
+                  splitStatements: true
+                  stripComments: true

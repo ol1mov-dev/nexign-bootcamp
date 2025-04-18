@@ -1,6 +1,4 @@
-package com.projects.brt.entities;
-
-import lombok.NonNull;
+package com.projects.brt.dto;
 
 public record Cdr(
         Long id,

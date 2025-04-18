@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - include:
+      relativeToChangelogFile: true
+      file: 10-changeset-tariffs-table.yml
+  - include:
+      relativeToChangelogFile: true
+      file: 10-changeset-users-table.yml
+  - include:
+      relativeToChangelogFile: true
+      file: 10-changeset-calls-table.yml

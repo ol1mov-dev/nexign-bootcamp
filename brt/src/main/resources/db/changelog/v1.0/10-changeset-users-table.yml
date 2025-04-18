@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: manuchehr
+      changes:
+        - sqlFile:
+            path: 01-create-users-table.sql
+            dbms: postgresql
+            relativeToChangelogFile: true
+            encoding: utf8
+            splitStatements: true
+            stripComments: true
+      rollback:
+        - sqlFile:
+            path: 01-drop-users-table.sql
+            dbms: postgresql
+            relativeToChangelogFile: true
+            encoding: utf8
+            splitStatements: true
+            stripComments: true

@@ -13,7 +13,6 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-
               - column:
                   name: call_type
                   type: VARCHAR(255)
