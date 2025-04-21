@@ -6,37 +6,32 @@ spring:
       mode: always
       schema-locations: classpath:db/sql/schema.sql
       data-locations:  classpath:db/sql/data.sql
-  # H2 DB Datasource
   datasource:
     url: jdbc:h2:mem:testdb
     username: admin
     password:
-# H2 DB
   h2:
     console:
       enabled: true
       path: /h2-console
-# Liquibase
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
-# Data JPA
   jpa:
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.H2Dialect
   profiles:
     active: dev
-# RabbitMQ
   rabbitmq:
     host: localhost
     port: 5672
     username: admin
     password: password
-# Server
+
 server:
   port: 8081
-# Eureka
+
 eureka:
   client:
     service-url:

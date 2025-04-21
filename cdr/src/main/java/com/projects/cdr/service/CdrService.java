@@ -24,8 +24,6 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class CdrService {
-
-    private final CdrRepository repository;
     private final UserRepository userRepository;
     private final ThreadPoolTaskExecutor cdrTaskExecutor;
     private final CdrRepository cdrRepository;

@@ -1,7 +1,9 @@
 package com.projects.brt.service;
 
+import com.projects.brt.configuration.RabbitMqConfiguration;
 import com.projects.brt.dto.CdrDto;
 import com.projects.brt.entities.Call;
+import com.projects.brt.entities.User;
 import com.projects.brt.repositories.CallRepository;
 import com.projects.brt.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,51 +20,31 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class BrtService {
+public class CallService {
 
     private final UserRepository userRepository;
     private final CallRepository callRepository;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final RabbitTemplate rabbitTemplate;
 
-    public void saveCdrs(List<CdrDto> cdrs) {
+    public void saveCall(List<CdrDto> cdrs) {
         cdrs.forEach(cdr -> {
-            System.out.println(
-                    cdr.msisdn1() + " " +
-                    cdr.msisdn2() + " " +
-                    cdr.startTime() + " " +
-                    cdr.endTime() + " " +
-                    cdr.callType()
-            );
+            boolean isMsisdn1OurClient = isOurClient(cdr.msisdn1());
+            boolean isMsisdn2OurClient = isOurClient(cdr.msisdn2());
+
+            if (isMsisdn1OurClient && isMsisdn2OurClient) {
+                callRepository.save(buildCall(cdr, cdr.msisdn1(), cdr.msisdn2()));
+                callRepository.save(buildCall(cdr, cdr.msisdn2(), cdr.msisdn1()));
+            }
+            else if (isMsisdn1OurClient) {
+                callRepository.save(buildCall(cdr, cdr.msisdn1(), cdr.msisdn2()));
+            }
+            else if(isMsisdn2OurClient) {
+                callRepository.save(buildCall(cdr, cdr.msisdn2(), cdr.msisdn1()));
+            } else {
+                log.info("Ни один из номеров не является клиентом нашей компании.");
+            }
         });
-    }
-
-    public void tes(){
-        // +79098765432 +79211171617 2024-04-20T16:23:09.8081562 2024-04-20T16:27:09.8081562 02
-        CdrDto cdr = CdrDto
-                .builder()
-                .msisdn1("+79161234567")
-                .msisdn2("+79262345678")
-                .startTime("2024-04-20T16:23:09.8081562")
-                .endTime("2024-04-20T16:27:09.8081562")
-                .callType("02")
-                .build();
-
-        boolean isMsisdn1OurClient = isOurClient(cdr.msisdn1());
-        boolean isMsisdn2OurClient = isOurClient(cdr.msisdn2());
-
-        if (isMsisdn1OurClient && isMsisdn2OurClient) {
-            callRepository.save(buildCall(cdr, cdr.msisdn1(), cdr.msisdn2()));
-            callRepository.save(buildCall(cdr, cdr.msisdn2(), cdr.msisdn1()));
-        }
-        else if (isMsisdn1OurClient) {
-            callRepository.save(buildCall(cdr, cdr.msisdn1(), cdr.msisdn2()));
-        }
-        else if(isMsisdn2OurClient) {
-            callRepository.save(buildCall(cdr, cdr.msisdn2(), cdr.msisdn1()));
-        } else {
-            log.info("Ни один из номеров не является клиентом нашей компании.");
-        }
     }
 
     public String calculateDuration(String start, String end) {
@@ -74,7 +56,6 @@ public class BrtService {
         LocalDateTime dateTime1 = LocalDateTime.parse(start, formatter);
         LocalDateTime dateTime2 = LocalDateTime.parse(end, formatter);
 
-        // Пример разницы между ними:
         return String.valueOf(
                 ChronoUnit.MINUTES.between(dateTime1, dateTime2)
         );
@@ -85,9 +66,29 @@ public class BrtService {
     }
 
     public Call buildCall(CdrDto cdr, String userMsisdn, String strangerMsisdn) {
+        User user = userRepository.findByMsisdn(userMsisdn);
+
+        if(user != null && user.getTariff().getId() == 11) {
+
+//            rabbitTemplate.convertAndSend(
+//                    RabbitMqConfiguration.EXCHANGE_NAME,
+//                    RabbitMqConfiguration.CALL_CREATED_QUEUE,
+//                    RabbitMqConfiguration.CALL_CREATED_ROUTING_KEY
+//            );
+            return Call
+                    .builder()
+                    .user(user)
+                    .strangerMsisdn(strangerMsisdn)
+                    .startTime(cdr.startTime())
+                    .endTime(cdr.endTime())
+                    .duration(calculateDuration(cdr.startTime(), cdr.endTime()))
+                    .callType(cdr.callType())
+                    .build();
+        }
+
         return Call
                 .builder()
-                .user(userRepository.findByMsisdn(userMsisdn))
+                .user(user)
                 .strangerMsisdn(strangerMsisdn)
                 .startTime(cdr.startTime())
                 .endTime(cdr.endTime())
