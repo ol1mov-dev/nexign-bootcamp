@@ -1,6 +1,9 @@
 package com.projects.brt.dto;
 
-public record Cdr(
+import lombok.Builder;
+
+@Builder
+public record CdrDto(
         Long id,
         String callType,
         String msisdn1,

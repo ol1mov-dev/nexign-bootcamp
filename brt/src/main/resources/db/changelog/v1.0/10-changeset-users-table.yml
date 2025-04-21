@@ -1,8 +1,12 @@
 databaseChangeLog:
-  - changeSet:
-      id: 2
-      author: manuchehr
-      changes:
+    - changeSet:
+        id: create-users-table
+        author: manuchehr
+        preConditions:
+          - not:
+              - tableExists:
+                  tableName: users
+        changes:
         - sqlFile:
             path: 01-create-users-table.sql
             dbms: postgresql
@@ -10,7 +14,7 @@ databaseChangeLog:
             encoding: utf8
             splitStatements: true
             stripComments: true
-      rollback:
+        rollback:
         - sqlFile:
             path: 01-drop-users-table.sql
             dbms: postgresql
@@ -18,3 +22,16 @@ databaseChangeLog:
             encoding: utf8
             splitStatements: true
             stripComments: true
+
+
+    - changeSet:
+        id: insert-users-table
+        author: manuchehr
+        changes:
+          - sqlFile:
+                path: 01-insert-users-table.sql
+                dbms: postgresql
+                relativeToChangelogFile: true
+                encoding: utf8
+                splitStatements: true
+                stripComments: true

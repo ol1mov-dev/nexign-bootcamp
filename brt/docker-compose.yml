@@ -12,5 +12,4 @@ services:
     ports:
       - "5432:5432"
 volumes:
-  rabbitmq_data:
   postgres_data:

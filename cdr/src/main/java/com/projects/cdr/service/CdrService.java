@@ -51,8 +51,8 @@ public class CdrService {
         List<Cdr> cdrs = new ArrayList<>();
         LocalDateTime dateTime = LocalDateTime.now().minusYears(1);
 
-        for (int i = 1; i <= 1000; i++) {
-            dateTime = dateTime.plusDays(i);
+        for (int i = 1; i <= 100; i++) {
+            dateTime = dateTime.plusHours(3);
 
             LocalDateTime startTime = dateTime.plusHours(4);
             LocalDateTime endTime = startTime.plusMinutes(i);

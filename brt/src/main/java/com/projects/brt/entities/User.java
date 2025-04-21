@@ -3,6 +3,8 @@ package com.projects.brt.entities;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.Set;
 
 @Table(name = "users")
@@ -26,16 +28,16 @@ public class User{
     @Nullable
     private String lastName;
 
-    @NonNull
+    @Column(name = "msisdn", nullable = false, unique = true)
     private String msisdn;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Set<Call> calls;
 
-    @NonNull
-    private String balance;
+    @Column(name = "balance", precision = 12, scale = 2, nullable = false)
+    private BigDecimal balance;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tariff_id")
     private Tariff tariff;
 }

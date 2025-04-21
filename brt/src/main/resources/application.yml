@@ -5,6 +5,7 @@ spring:
     url: jdbc:postgresql://localhost:5432/brt-db
     username: postgres
     password: postgres
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: none
@@ -14,7 +15,7 @@ spring:
     change-log: classpath:/db/changelog/db.changelog-master.yaml
   rabbitmq:
     host: localhost
-    port: 5671
+    port: 5672
     username: admin
     password: password
 

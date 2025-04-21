@@ -1,4 +1,4 @@
-CREATE TABLE call (
+CREATE TABLE calls (
   id BIGSERIAL PRIMARY KEY,
   user_id BIGINT NOT NULL,
   stranger_msisdn VARCHAR(50) NOT NULL,

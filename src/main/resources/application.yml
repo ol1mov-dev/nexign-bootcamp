@@ -3,4 +3,4 @@ spring:
     name: nexign-bootcamp
     
 server:
-  port: 8080
+  port: 8089

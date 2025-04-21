@@ -24,7 +24,7 @@ public class Call {
     private String strangerMsisdn;
 
     @NonNull
-    private CallType callType;
+    private String callType;
 
     @NonNull
     private String startTime;
