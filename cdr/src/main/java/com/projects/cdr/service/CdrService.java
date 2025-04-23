@@ -12,11 +12,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -53,7 +48,7 @@ public class CdrService {
             dateTime = dateTime.plusHours(3);
 
             LocalDateTime startTime = dateTime.plusHours(4);
-            LocalDateTime endTime = startTime.plusMinutes(i);
+            LocalDateTime endTime = startTime.plusMinutes(2);
 
             cdrTaskExecutor.submit(() -> {
                 User user = userRepository.findRandomUser();
@@ -62,18 +57,18 @@ public class CdrService {
                 CdrDto cdr = CdrDto
                                 .builder()
                                 .callType(callType)
-                                .msisdn1(user.getNumber())
-                                .msisdn2(getRandomReciever())
-                                .startTime(startTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-                                .endTime(endTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                                .firstMsisdn(user.getNumber())
+                                .secondMsisdn(getRandomReciever())
+                                .startTime(startTime)
+                                .endTime(endTime)
                                 .build();
 
                 Cdr savedCdr = cdrRepository.save(
                         Cdr
                             .builder()
                             .callType(cdr.callType())
-                            .msisdn1(cdr.msisdn1())
-                            .msisdn2(cdr.msisdn2())
+                            .firstMsisdn(cdr.firstMsisdn())
+                            .secondMsisdn(cdr.secondMsisdn())
                             .startTime(cdr.startTime())
                             .endTime(cdr.endTime())
                             .build()
@@ -81,10 +76,10 @@ public class CdrService {
 
                 cdrs.add(savedCdr);
 
-                if (cdrs.size() >= 10){
-                    sendCdrsQueue(cdrs);
-                    cdrs.clear();
-                }
+//                if (cdrs.size() >= 10){
+//                    sendCdrsQueue(cdrs);
+//                    cdrs.clear();
+//                }
             });
         }
     }
@@ -109,7 +104,7 @@ public class CdrService {
 
     /**
      * Получаем рандомного получателя. Это может быть наш клиент, либо клиент других абонентов
-     * @return номер абонента к которому осуществляется/принимается  звонок.
+     * @return номер абонента к которому осуществляется/принимается звонок.
      */
     public String getRandomReciever(){
         boolean isOurSubscriber = new Random().nextBoolean();
@@ -137,30 +132,5 @@ public class CdrService {
             System.out.println(start.format(formatter) + " - " + end.format(formatter));
         }
         return null;
-    }
-
-    public void generateFile(Cdr cdr) throws InterruptedException {
-        File directory = new File(REPORTS_DIR);
-        System.out.println(123);
-
-        if (!directory.exists()) {
-            directory.mkdirs();  // Создаем директорию, если она не существует
-        }
-
-        String fileName = UUID.randomUUID() + ".csv";
-        File file = new File(directory, fileName);
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-                writer.write(
-                        String.format("%s,%s,%s,%s,%s\n",
-                        cdr.getCallType(),
-                        cdr.getMsisdn1(),
-                        cdr.getMsisdn2(),
-                        cdr.getStartTime(),
-                        cdr.getEndTime())
-                );
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
     }
 }

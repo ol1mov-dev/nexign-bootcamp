@@ -36,8 +36,4 @@ public class User{
 
     @Column(name = "balance", precision = 12, scale = 2, nullable = false)
     private BigDecimal balance;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tariff_id")
-    private Tariff tariff;
 }

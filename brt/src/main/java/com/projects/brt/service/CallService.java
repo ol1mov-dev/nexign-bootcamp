@@ -27,6 +27,10 @@ public class CallService {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final RabbitTemplate rabbitTemplate;
 
+    /**
+     * Сохраняем
+     * @param cdrs
+     */
     public void saveCall(List<CdrDto> cdrs) {
         cdrs.forEach(cdr -> {
             boolean isMsisdn1OurClient = isOurClient(cdr.msisdn1());
@@ -61,39 +65,49 @@ public class CallService {
         );
     }
 
+    /**
+     * Проверяем наш клиент
+     * @param msisdn номер клиент
+     * @return возвращает статус, являтся ли номер нашим клиентом
+     */
     public boolean isOurClient(String msisdn) {
         return userRepository.existsByMsisdn(msisdn);
     }
 
+    /**
+     * Собираем звонок
+     * @param cdr данные которые отправляются комутатором
+     * @param userMsisdn номер проверяемого пользователя
+     * @param strangerMsisdn номер другого абонента
+     * @return сущность Call для последующего сохранения в таблицу Calls
+     */
     public Call buildCall(CdrDto cdr, String userMsisdn, String strangerMsisdn) {
         User user = userRepository.findByMsisdn(userMsisdn);
-
-        if(user != null && user.getTariff().getId() == 11) {
-
+        return  null;
 //            rabbitTemplate.convertAndSend(
 //                    RabbitMqConfiguration.EXCHANGE_NAME,
 //                    RabbitMqConfiguration.CALL_CREATED_QUEUE,
 //                    RabbitMqConfiguration.CALL_CREATED_ROUTING_KEY
 //            );
-            return Call
-                    .builder()
-                    .user(user)
-                    .strangerMsisdn(strangerMsisdn)
-                    .startTime(cdr.startTime())
-                    .endTime(cdr.endTime())
-                    .duration(calculateDuration(cdr.startTime(), cdr.endTime()))
-                    .callType(cdr.callType())
-                    .build();
-        }
-
-        return Call
-                .builder()
-                .user(user)
-                .strangerMsisdn(strangerMsisdn)
-                .startTime(cdr.startTime())
-                .endTime(cdr.endTime())
-                .duration(calculateDuration(cdr.startTime(), cdr.endTime()))
-                .callType(cdr.callType())
-                .build();
+//            return Call
+//                    .builder()
+//                    .user(user)
+//                    .strangerMsisdn(strangerMsisdn)
+//                    .startTime(cdr.startTime())
+//                    .endTime(cdr.endTime())
+//                    .duration(calculateDuration(cdr.startTime(), cdr.endTime()))
+//                    .callType(cdr.callType())
+//                    .build();
+//        }
+//
+//        return Call
+//                .builder()
+//                .user(user)
+//                .strangerMsisdn(strangerMsisdn)
+//                .startTime(cdr.startTime())
+//                .endTime(cdr.endTime())
+//                .duration(calculateDuration(cdr.startTime(), cdr.endTime()))
+//                .callType(cdr.callType())
+//                .build();
     }
 }

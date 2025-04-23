@@ -21,14 +21,14 @@ public class Cdr {
     private String callType;
 
     @NonNull
-    private String msisdn1;
+    private String firstMsisdn;
 
     @NonNull
-    private String msisdn2;
+    private String secondMsisdn;
 
     @NonNull
-    private String startTime;
+    private LocalDateTime startTime;
 
     @NonNull
-    private String endTime;
+    private LocalDateTime endTime;
 }
