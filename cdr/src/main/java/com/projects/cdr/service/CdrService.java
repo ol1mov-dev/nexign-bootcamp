@@ -5,6 +5,7 @@ import com.projects.cdr.configuration.RabbitMqConfiguration;
 import com.projects.cdr.dto.CdrDto;
 import com.projects.cdr.entities.Cdr;
 import com.projects.cdr.entities.User;
+import com.projects.cdr.mapper.CdrMapper;
 import com.projects.cdr.repository.CdrRepository;
 import com.projects.cdr.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class CdrService {
     private final ThreadPoolTaskExecutor cdrTaskExecutor;
     private final CdrRepository cdrRepository;
     private final RabbitTemplate rabbitTemplate;
+    private final CdrMapper cdrMapper;
 
     @Value(value = "${cdr-reports.path}")
     private String REPORTS_DIR;
@@ -54,7 +56,7 @@ public class CdrService {
                 User user = userRepository.findRandomUser();
                 String callType = getRandomCallType();
 
-                CdrDto cdr = CdrDto
+                CdrDto cdrDto = CdrDto
                                 .builder()
                                 .callType(callType)
                                 .firstMsisdn(user.getNumber())
@@ -63,16 +65,7 @@ public class CdrService {
                                 .endTime(endTime)
                                 .build();
 
-                Cdr savedCdr = cdrRepository.save(
-                        Cdr
-                            .builder()
-                            .callType(cdr.callType())
-                            .firstMsisdn(cdr.firstMsisdn())
-                            .secondMsisdn(cdr.secondMsisdn())
-                            .startTime(cdr.startTime())
-                            .endTime(cdr.endTime())
-                            .build()
-                );
+                Cdr savedCdr = cdrRepository.save(cdrMapper.toCdr(cdrDto));
 
                 cdrs.add(savedCdr);
 

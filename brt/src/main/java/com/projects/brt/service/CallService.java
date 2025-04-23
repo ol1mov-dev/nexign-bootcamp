@@ -33,17 +33,17 @@ public class CallService {
      */
     public void saveCall(List<CdrDto> cdrs) {
         cdrs.forEach(cdr -> {
-            boolean isMsisdn1OurClient = isOurClient(cdr.msisdn1());
-            boolean isMsisdn2OurClient = isOurClient(cdr.msisdn2());
+            boolean isFirstMsisdnOurClient = isOurClient(cdr.msisdn1());
+            boolean isSecondMsisdnOurClient = isOurClient(cdr.msisdn2());
 
-            if (isMsisdn1OurClient && isMsisdn2OurClient) {
+            if (isFirstMsisdnOurClient && isSecondMsisdnOurClient) {
                 callRepository.save(buildCall(cdr, cdr.msisdn1(), cdr.msisdn2()));
                 callRepository.save(buildCall(cdr, cdr.msisdn2(), cdr.msisdn1()));
             }
-            else if (isMsisdn1OurClient) {
+            else if (isFirstMsisdnOurClient) {
                 callRepository.save(buildCall(cdr, cdr.msisdn1(), cdr.msisdn2()));
             }
-            else if(isMsisdn2OurClient) {
+            else if(isSecondMsisdnOurClient) {
                 callRepository.save(buildCall(cdr, cdr.msisdn2(), cdr.msisdn1()));
             } else {
                 log.info("Ни один из номеров не является клиентом нашей компании.");
