@@ -10,17 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/cdr")
 @AllArgsConstructor
 public class CdrController {
-
-    CdrService cdrService;
+    private final CdrService cdrService;
 
     @GetMapping("/generate")
     public void generate() throws InterruptedException {
-        cdrService.generate();
-    }
-
-
-    @GetMapping("/seeeend")
-    public void seeeend() throws InterruptedException {
         cdrService.generate();
     }
 }

@@ -8,5 +8,5 @@ import org.mapstruct.Mapper;
 public interface CdrMapper {
     CdrDto toCdrDto(Cdr cdr);
 
-    Cdr toCdr(CdrDto cdrDto);
+    Cdr toCdrEntity(CdrDto cdrDto);
 }

@@ -1,44 +1,15 @@
 databaseChangeLog:
+  - preConditions:
+      - dbms:
+          type: h2
+
+  - include:
+      file: v1.0/db.changelog-v1.0.yml
+      relativeToChangelogFile: true
+
   - changeSet:
-      id: 1
+      id: cdr-db-init
       author: manuchehr
       changes:
-        - createTable:
-            tableName: cdrs
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: call_type
-                  type: VARCHAR(255)
-                  constraints:
-                    nullable: false
-
-              - column:
-                  name: msisdn1
-                  type: VARCHAR(255)
-                  constraints:
-                    nullable: false
-
-              - column:
-                  name: msisdn2
-                  type: VARCHAR(255)
-                  constraints:
-                    nullable: false
-
-              - column:
-                  name: start_time
-                  type: TIMESTAMP
-                  constraints:
-                    nullable: false
-
-              - column:
-                  name: end_time
-                  type: TIMESTAMP
-                  constraints:
-                    nullable: false
+        - tagDatabase:
+            tag: db_init

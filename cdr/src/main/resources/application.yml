@@ -1,11 +1,6 @@
 spring:
   application:
     name: cdr-service
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:db/sql/schema.sql
-      data-locations:  classpath:db/sql/data.sql
   datasource:
     url: jdbc:h2:mem:testdb
     username: admin
@@ -17,10 +12,6 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
-  jpa:
-    hibernate:
-      ddl-auto: update
-    database-platform: org.hibernate.dialect.H2Dialect
   profiles:
     active: dev
   rabbitmq:
@@ -38,7 +29,4 @@ eureka:
       defaultZone: http://localhost:8761/eureka
     fetch-registry: true
     register-with-eureka: true
-
-cdr-reports:
-  path: src/main/java/reports
 

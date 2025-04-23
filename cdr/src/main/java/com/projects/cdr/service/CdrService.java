@@ -26,17 +26,6 @@ public class CdrService {
     private final RabbitTemplate rabbitTemplate;
     private final CdrMapper cdrMapper;
 
-    @Value(value = "${cdr-reports.path}")
-    private String REPORTS_DIR;
-
-    public void sendCdrsQueue(List<Cdr> cdrs) {
-        rabbitTemplate.convertAndSend(
-                RabbitMqConfiguration.EXCHANGE_NAME,
-                RabbitMqConfiguration.CDR_CREATED_ROUTING_KEY,
-                cdrs
-        );
-    }
-
     /**
      * Создаем CDR
      * @throws InterruptedException
@@ -65,14 +54,14 @@ public class CdrService {
                                 .endTime(endTime)
                                 .build();
 
-                Cdr savedCdr = cdrRepository.save(cdrMapper.toCdr(cdrDto));
+                Cdr savedCdr = cdrRepository.save(cdrMapper.toCdrEntity(cdrDto));
 
                 cdrs.add(savedCdr);
 
-//                if (cdrs.size() >= 10){
-//                    sendCdrsQueue(cdrs);
-//                    cdrs.clear();
-//                }
+                if (cdrs.size() >= 10){
+                    sendCdrsQueue(cdrs);
+                    cdrs.clear();
+                }
             });
         }
     }
@@ -96,7 +85,7 @@ public class CdrService {
     }
 
     /**
-     * Получаем рандомного получателя. Это может быть наш клиент, либо клиент других абонентов
+     * Получаем случайного получателя. Это может быть наш клиент, либо клиент других абонентов
      * @return номер абонента к которому осуществляется/принимается звонок.
      */
     public String getRandomReciever(){
@@ -108,6 +97,27 @@ public class CdrService {
         return  "+7" + new Random().nextLong(9000000000L, 9999999999L);
     }
 
+    /**
+     * Отправляем CDR-ы в очередь RabbitMQ
+     * @param cdrs звонки которые генерируются комутатором
+     */
+    public void sendCdrsQueue(List<Cdr> cdrs) {
+        rabbitTemplate.convertAndSend(
+                RabbitMqConfiguration.EXCHANGE_NAME,
+                RabbitMqConfiguration.CDR_CREATED_ROUTING_KEY,
+                cdrs
+        );
+    }
+
+    /**
+     * Делим CDR на 2 CDR, если время звонка пересекается с 00:00:00
+     * Например звонок произошел в 23:55:00, а закончился в 00:03:00. В таком случае делим этот звонок
+     * на 2 CDR:
+     * 23:55:00 - 23:59:59 и 00:00:00 - 00:03:00
+     * @param startDateTime начало звонка
+     * @param endDateTime конец звонка
+     * @return два Cdr, если есть пересечение в 00:00:00, в противном случае, только один CDR
+     */
     public String splitIntervalAtMidnight(String startDateTime, String endDateTime){
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
