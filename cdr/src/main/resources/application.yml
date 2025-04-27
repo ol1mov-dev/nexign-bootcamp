@@ -9,6 +9,8 @@ spring:
     console:
       enabled: true
       path: /h2-console
+      settings:
+        web-allow-others: true
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yaml

@@ -4,19 +4,20 @@ import com.projects.cdr.commons.CallType;
 import com.projects.cdr.configuration.RabbitMqConfiguration;
 import com.projects.cdr.dto.CdrDto;
 import com.projects.cdr.entities.Cdr;
-import com.projects.cdr.entities.User;
 import com.projects.cdr.mapper.CdrMapper;
 import com.projects.cdr.repository.CdrRepository;
 import com.projects.cdr.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cglib.core.Local;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CdrService {
@@ -32,31 +33,36 @@ public class CdrService {
      */
     public void generate() throws InterruptedException {
 
-        List<Cdr> cdrs = new ArrayList<>();
+        List<CdrDto> cdrs = new ArrayList<>();
         LocalDateTime dateTime = LocalDateTime.now().minusYears(1);
 
-        for (int i = 1; i <= 100; i++) {
+        for (int i = 1; i < 1000; i++) {
             dateTime = dateTime.plusHours(3);
 
-            LocalDateTime startTime = dateTime.plusHours(4);
-            LocalDateTime endTime = startTime.plusMinutes(2);
+//            LocalDateTime startTime = dateTime.plusHours(4);
+//            LocalDateTime endTime = startTime
+//                    .plusMinutes(new Random().nextInt(60))
+//                    .plusSeconds(new Random().nextInt(60));
 
             cdrTaskExecutor.submit(() -> {
-                User user = userRepository.findRandomUser();
-                String callType = getRandomCallType();
+                LocalDateTime startTime = LocalDateTime.of(2024, 5, 5, 23, 59, 0);
+                LocalDateTime endTime = LocalDateTime.of(2024, 5, 6, 0, 5, 0);
 
-                CdrDto cdrDto = CdrDto
-                                .builder()
-                                .callType(callType)
-                                .firstMsisdn(user.getNumber())
-                                .secondMsisdn(getRandomReciever())
-                                .startTime(startTime)
-                                .endTime(endTime)
-                                .build();
+                // Если даты одинаковые → звонок не пересекает полночь.
+                // Если даты разные → звонок переходит на следующий день.
+                if (!startTime.toLocalDate().equals(endTime.toLocalDate())) {
+                    Map<String, CdrDto> splittedIntervals = splitCallIntervalAtMidnight(startTime, endTime);
 
-                Cdr savedCdr = cdrRepository.save(cdrMapper.toCdrEntity(cdrDto));
+                    cdrRepository.save(cdrMapper.toCdrEntity(splittedIntervals.get("firstCdr")));
+                    cdrRepository.save(cdrMapper.toCdrEntity(splittedIntervals.get("secondCdr")));
 
-                cdrs.add(savedCdr);
+                    cdrs.add(splittedIntervals.get("firstCdr"));
+                    cdrs.add(splittedIntervals.get("secondCdr"));
+                } else {
+                    cdrRepository.save(
+                        cdrMapper.toCdrEntity(buildCdrDto(startTime, endTime))
+                    );
+                }
 
                 if (cdrs.size() >= 10){
                     sendCdrsQueue(cdrs);
@@ -64,14 +70,6 @@ public class CdrService {
                 }
             });
         }
-    }
-
-    /**
-     * Проверяем коллизию времени звонка
-     * @return статус коллизии времени звонка (TRUE/FALSE)
-     */
-    public boolean isCallsTimeCollides(){
-        return true;
     }
 
     /**
@@ -101,7 +99,7 @@ public class CdrService {
      * Отправляем CDR-ы в очередь RabbitMQ
      * @param cdrs звонки которые генерируются комутатором
      */
-    public void sendCdrsQueue(List<Cdr> cdrs) {
+    public void sendCdrsQueue(List<CdrDto> cdrs) {
         rabbitTemplate.convertAndSend(
                 RabbitMqConfiguration.EXCHANGE_NAME,
                 RabbitMqConfiguration.CDR_CREATED_ROUTING_KEY,
@@ -114,26 +112,32 @@ public class CdrService {
      * Например звонок произошел в 23:55:00, а закончился в 00:03:00. В таком случае делим этот звонок
      * на 2 CDR:
      * 23:55:00 - 23:59:59 и 00:00:00 - 00:03:00
-     * @param startDateTime начало звонка
-     * @param endDateTime конец звонка
+     * @param startCall начало звонка
+     * @param endCall конец звонка
      * @return два Cdr, если есть пересечение в 00:00:00, в противном случае, только один CDR
      */
-    public String splitIntervalAtMidnight(String startDateTime, String endDateTime){
+    public Map<String, CdrDto> splitCallIntervalAtMidnight(LocalDateTime startCall, LocalDateTime endCall){
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime start = LocalDateTime.parse(startDateTime, formatter);
-        LocalDateTime end = LocalDateTime.parse(endDateTime, formatter);
+        LocalDateTime midnight = startCall.toLocalDate().atTime(23, 59, 59);
+        LocalDateTime nextDayStart = endCall.toLocalDate().atTime(0, 0, 0);
 
-        if (!start.toLocalDate().equals(end.toLocalDate())) {
-            // Создаем момент полуночи
-            LocalDateTime midnight = start.toLocalDate().atTime(23, 59, 59);
-            LocalDateTime nextDayStart = end.toLocalDate().atTime(0, 0, 0);
+        return Map.of(
+                "firstCdr", buildCdrDto(startCall, midnight),
+                "secondCdr", buildCdrDto(nextDayStart, endCall)
+        );
+    }
 
-            System.out.println(start.format(formatter) + " - " + midnight.format(formatter));
-            System.out.println(nextDayStart.format(formatter) + " - " + end.format(formatter));
-        } else {
-            System.out.println(start.format(formatter) + " - " + end.format(formatter));
-        }
-        return null;
+    public CdrDto buildCdrDto(
+            LocalDateTime startTime,
+            LocalDateTime endTime
+    ){
+        return CdrDto
+                .builder()
+                .callType(getRandomCallType())
+                .firstMsisdn(userRepository.findRandomUser().getNumber())
+                .secondMsisdn(getRandomReciever())
+                .startTime(startTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                .endTime(endTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                .build();
     }
 }

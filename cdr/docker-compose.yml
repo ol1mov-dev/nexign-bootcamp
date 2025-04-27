@@ -1,19 +1,17 @@
 version: '3.8'
 
 services:
-  rabbitmq:
-    image: rabbitmq:3.12-management
-    container_name: rabbitmq
-    hostname: rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+  h2-db:
+    image: oscarfonts/h2
+    container_name: h2-database
     environment:
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=password
+      - H2_OPTIONS=-webAllowOthers -tcpAllowOthers -ifNotExists
+    ports:
+      - "8082:8082"  # Веб-консоль (http://localhost:8082)
+      - "9092:9092"  # TCP-порт для JDBC подключения
     volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
+      - h2-data:/opt/h2-data
     restart: unless-stopped
 
 volumes:
-  rabbitmq_data:
+  h2-data:

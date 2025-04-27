@@ -7,10 +7,9 @@ import java.time.LocalDateTime;
 
 @Builder
 public record CdrDto(
-         Long id,
          String callType,
          String firstMsisdn,
          String secondMsisdn,
-         LocalDateTime startTime,
-         LocalDateTime endTime
+         String startTime,
+         String endTime
 ) {}

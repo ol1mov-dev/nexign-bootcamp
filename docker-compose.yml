@@ -1,7 +1,6 @@
 version: "4"
 
 services:
-  # Eureka Server (Service Discovery)
   eureka-server:
     container_name: eureka-server
     build:
@@ -16,7 +15,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
   # RabbitMQ (Message Broker)
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:3.12-management
     container_name: rabbitmq
     ports:
       - "5672:5672"
@@ -26,6 +25,17 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=password
+  h2-db:
+    image: oscarfonts/h2
+    container_name: h2-database
+    environment:
+      H2_OPTIONS: -web -webAllowOthers -webPort 8081 -tcp -tcpAllowOthers -tcpPort 9092 -ifNotExists
+    ports:
+      - "8089:8089"
+      - "9092:9092"
+    volumes:
+      - h2-data:/opt/h2-data
+    restart: unless-stopped
 
   # Пример микросервиса 1: User Service
   cdr-service:
@@ -44,6 +54,7 @@ services:
     depends_on:
       - eureka-server
       - rabbitmq
+      - h2-db
 
   # Пример микросервиса 2: Order Service
 #  brt-service:
@@ -66,3 +77,5 @@ services:
 networks:
   microservices-network:
     driver: bridge
+volumes:
+  h2-data:

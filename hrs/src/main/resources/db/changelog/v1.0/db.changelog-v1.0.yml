@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - include:
+      relativeToChangelogFile: true
+      file: 10-changeset-tariff-parameters-table.yaml
+  - include:
+      relativeToChangelogFile: true
+      file: 10-changeset-tariffs-table.yaml
+  - include:
+      relativeToChangelogFile: true
+      file: 10-changeset-clients-table.yaml
+  - include:
+      relativeToChangelogFile: true
+      file: 10-changeset-transactions-table.yaml

@@ -33,5 +33,5 @@ public class Call {
     private String endTime;
 
     @NonNull
-    private String duration;
+    private Long duration;
 }

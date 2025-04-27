@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-clients-table
+      author: manuchehr
+      changes:
+        - sqlFile:
+            path: 01-create-clients-table.sql
+            dbms: postgresql
+            relativeToChangelogFile: true
+            encoding: utf8
+            splitStatements: true
+            stripComments: true
+
+      rollback:
+        - sqlFile:
+            path: 01-drop-clients-table.sql
+            dbms: postgresql
+            relativeToChangelogFile: true
+            encoding: utf8
+            splitStatements: true
+            stripComments: true

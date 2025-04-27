@@ -27,8 +27,8 @@ public class Cdr {
     private String secondMsisdn;
 
     @NonNull
-    private LocalDateTime startTime;
+    private String startTime;
 
     @NonNull
-    private LocalDateTime endTime;
+    private String endTime;
 }
