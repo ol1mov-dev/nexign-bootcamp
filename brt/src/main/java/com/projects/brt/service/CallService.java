@@ -54,6 +54,13 @@ public class CallService {
         });
     }
 
+
+    /**
+     * Рассчитать длительность разговора в секундах
+     * @param start
+     * @param end
+     * @return
+     */
     public Long calculateDurationInSeconds(String start, String end) {
         DateTimeFormatter formatter = new DateTimeFormatterBuilder()
                 .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
@@ -68,7 +75,6 @@ public class CallService {
 
     /**
      * Проверяем наш клиент
-     *
      * @param msisdn номер клиент
      * @return возвращает статус, являтся ли номер нашим клиентом
      */
@@ -104,6 +110,11 @@ public class CallService {
         return callMapper.toCallEntity(callDto);
     }
 
+    /**
+     * Отправляем данные о звонке в очередь
+     * @param userId идентификатор пользователя
+     * @param callDuration длительность звонка в секундах
+     */
     public void sendCallQueue(Long userId, Long callDuration) {
         rabbitTemplate.convertAndSend(
                 RabbitMqConfiguration.EXCHANGE_NAME,
@@ -115,6 +126,4 @@ public class CallService {
                         .build()
         );
     }
-
-
 }

@@ -1,10 +1,10 @@
-package com.projects.eurekaserver;
+package com.projects.crm;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class EurekaServerApplicationTests {
+class CrmApplicationTests {
 
     @Test
     void contextLoads() {

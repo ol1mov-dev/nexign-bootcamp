@@ -15,7 +15,7 @@ public class ClientController {
 
     private final ClientService clientService;
 
-    @GetMapping("/aaa")
+    @GetMapping("/create")
     public ResponseEntity<Client> create(@RequestBody CreateClientRequest request) {
         return ResponseEntity.ok(clientService.create(request));
     }

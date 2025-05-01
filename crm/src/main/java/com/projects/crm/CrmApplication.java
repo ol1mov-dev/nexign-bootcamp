@@ -1,10 +1,13 @@
-package com.projects.cdr;
+package com.projects.crm;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CdrApplication {
+public class CrmApplication {
+
     public static void main(String[] args) {
-        SpringApplication.run(CdrApplication.class, args);
+        SpringApplication.run(CrmApplication.class, args);
     }
+
 }

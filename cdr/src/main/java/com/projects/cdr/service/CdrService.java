@@ -3,14 +3,12 @@ package com.projects.cdr.service;
 import com.projects.cdr.commons.CallType;
 import com.projects.cdr.configuration.RabbitMqConfiguration;
 import com.projects.cdr.dto.CdrDto;
-import com.projects.cdr.entities.Cdr;
 import com.projects.cdr.mapper.CdrMapper;
 import com.projects.cdr.repository.CdrRepository;
 import com.projects.cdr.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.cglib.core.Local;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -39,14 +37,12 @@ public class CdrService {
         for (int i = 1; i < 1000; i++) {
             dateTime = dateTime.plusHours(3);
 
-//            LocalDateTime startTime = dateTime.plusHours(4);
-//            LocalDateTime endTime = startTime
-//                    .plusMinutes(new Random().nextInt(60))
-//                    .plusSeconds(new Random().nextInt(60));
+            LocalDateTime startTime = dateTime.plusHours(4);
+            LocalDateTime endTime = startTime
+                    .plusMinutes(new Random().nextInt(60))
+                    .plusSeconds(new Random().nextInt(60));
 
             cdrTaskExecutor.submit(() -> {
-                LocalDateTime startTime = LocalDateTime.of(2024, 5, 5, 23, 59, 0);
-                LocalDateTime endTime = LocalDateTime.of(2024, 5, 6, 0, 5, 0);
 
                 // Если даты одинаковые → звонок не пересекает полночь.
                 // Если даты разные → звонок переходит на следующий день.
@@ -59,6 +55,7 @@ public class CdrService {
                     cdrs.add(splittedIntervals.get("firstCdr"));
                     cdrs.add(splittedIntervals.get("secondCdr"));
                 } else {
+                    cdrs.add(buildCdrDto(startTime, endTime));
                     cdrRepository.save(
                         cdrMapper.toCdrEntity(buildCdrDto(startTime, endTime))
                     );
@@ -127,6 +124,12 @@ public class CdrService {
         );
     }
 
+    /**
+     * Создаем Cdr
+     * @param startTime начало разговора
+     * @param endTime конец разговора
+     * @return
+     */
     public CdrDto buildCdrDto(
             LocalDateTime startTime,
             LocalDateTime endTime
