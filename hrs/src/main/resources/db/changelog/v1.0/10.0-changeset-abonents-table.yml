@@ -1,0 +1,33 @@
+databaseChangeLog:
+    - changeSet:
+        id: create-abonents-table
+        author: manuchehr
+        changes:
+          - sqlFile:
+              path: 01-create-abonents-table.sql
+              dbms: postgresql
+              relativeToChangelogFile: true
+              encoding: utf8
+              splitStatements: true
+              stripComments: true
+              
+        rollback:
+          - sqlFile:
+              path: 01-drop-abonents-table.sql
+              dbms: postgresql
+              relativeToChangelogFile: true
+              encoding: utf8
+              splitStatements: true
+              stripComments: true
+
+    - changeSet:
+          id: insert-abonents-table
+          author: manuchehr
+          changes:
+              - sqlFile:
+                    path: 01-insert-abonents-table.sql
+                    dbms: postgresql
+                    relativeToChangelogFile: true
+                    encoding: utf8
+                    splitStatements: true
+                    stripComments: true

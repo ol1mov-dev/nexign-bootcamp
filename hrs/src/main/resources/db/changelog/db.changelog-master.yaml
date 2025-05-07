@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - preConditions:
+      - dbms:
+          type: postgresql
+
+  - include:
+      file: v1.0/db.changelog-v1.0.yml
+      relativeToChangelogFile: true
+
+  - changeSet:
+      id: cdr-db-init
+      author: manuchehr
+      changes:
+        - tagDatabase:
+            tag: db_init

@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - include:
+      file: 10.0-changeset-users-table.yml
+      relativeToChangelogFile: true
+
+  - include:
+      file: 10.0-changeset-cdrs-table.yml
+      relativeToChangelogFile: true
+

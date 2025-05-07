@@ -1,0 +1,21 @@
+databaseChangeLog:
+    - changeSet:
+        id: create-cdrs-table
+        author: manuchehr
+        changes:
+          - sqlFile:
+              path: 01-create-cdrs-table.sql
+              dbms: h2
+              relativeToChangelogFile: true
+              encoding: utf8
+              splitStatements: true
+              stripComments: true
+              
+        rollback:
+          - sqlFile:
+              path: 01-drop-cdrs-table.sql
+              dbms: h2
+              relativeToChangelogFile: true
+              encoding: utf8
+              splitStatements: true
+              stripComments: true

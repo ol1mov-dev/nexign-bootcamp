@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: hrs-service
+  datasource:
+    url: jdbc:postgresql://localhost:5433/hrsdb
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+  profiles:
+    active: dev
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: password
+
+server:
+  port: 8083
