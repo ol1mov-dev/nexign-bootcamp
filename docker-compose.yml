@@ -13,6 +13,11 @@ services:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=password
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   brt_postgres:
     image: postgres:16-alpine
@@ -28,6 +33,11 @@ services:
     networks:
       - microservices-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   hrs_postgres:
     image: postgres:16-alpine
@@ -43,7 +53,97 @@ services:
     networks:
       - microservices-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  cdr_service:
+    build:
+      context: ./cdr
+      dockerfile: Dockerfile
+    container_name: cdr_service
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:h2:mem:cdrdb
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.h2.Driver
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=
+      - SPRING_H2_CONSOLE_ENABLED=true
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=admin
+      - SPRING_RABBITMQ_PASSWORD=password
+      - SERVER_PORT=8081
+    ports:
+      - "8081:8081"
+    networks:
+      - microservices-network
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  brt_service:
+    build:
+      context: ./brt
+      dockerfile: Dockerfile
+    container_name: brt_service
+    depends_on:
+      brt_postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      cdr_service:
+        condition: service_started  # Ждём, пока cdr_service запустится
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://brt_postgres:5432/brtdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=admin
+      - SPRING_RABBITMQ_PASSWORD=password
+      - SERVER_PORT=8082
+    ports:
+      - "8082:8082"
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+  hrs_service:
+      build:
+        context: ./hrs
+        dockerfile: Dockerfile
+      container_name: hrs_service
+      depends_on:
+        hrs_postgres:
+          condition: service_healthy
+        rabbitmq:
+          condition: service_started
+        cdr_service:
+          condition: service_started
+        brt_service:
+          condition: service_started
+      environment:
+        - SPRING_DATASOURCE_URL=jdbc:postgresql://hrs_postgres:5432/hrsdb
+        - SPRING_DATASOURCE_USERNAME=postgres
+        - SPRING_DATASOURCE_PASSWORD=postgres
+        - SPRING_RABBITMQ_HOST=rabbitmq
+        - SPRING_RABBITMQ_PORT=5672
+        - SPRING_RABBITMQ_USERNAME=admin
+        - SPRING_RABBITMQ_PASSWORD=password
+        - SERVER_PORT=8083
+      ports:
+        - "8083:8083"
+      networks:
+        - microservices-network
+      restart: unless-stopped
 networks:
   microservices-network:
     driver: bridge

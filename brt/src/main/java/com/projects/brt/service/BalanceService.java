@@ -31,7 +31,6 @@ public class BalanceService {
 
             abonent.setBalance(currentBalance);
             abonentRepository.save(abonent);
-
             log.info("ID: " + billDto.abonentId() + " currentBalance: " + currentBalance);
         }
     }

@@ -36,5 +36,5 @@ COPY --from=build /app/build/libs/*.jar app.jar
 # Проверяем наличие JAR
 RUN if [ ! -s app.jar ]; then echo "JAR file is empty or doesn't exist" && exit 1; fi
 
-EXPOSE 8082
+EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "app.jar"]
