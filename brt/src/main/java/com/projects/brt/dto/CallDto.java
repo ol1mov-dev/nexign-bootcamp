@@ -1,14 +1,15 @@
 package com.projects.brt.dto;
 
-import com.projects.brt.entities.User;
+import com.projects.brt.entities.Abonent;
 import lombok.Builder;
+import java.time.LocalTime;
 
 @Builder
 public record CallDto(
-        User user,
+        Abonent abonent,
         String strangerMsisdn,
         String callType,
         String startTime,
         String endTime,
-        Long duration
+        LocalTime duration
 ){}

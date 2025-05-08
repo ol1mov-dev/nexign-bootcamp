@@ -2,7 +2,7 @@ spring:
   application:
     name: brt-service
   datasource:
-    url: jdbc:postgresql://postgres:5432/postgres
+    url: jdbc:postgresql://localhost:5432/brtdb
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -11,12 +11,12 @@ spring:
       maximum-pool-size: 5
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
   liquibase:
-    enabled: false
+    enabled: true
     change-log: classpath:/db/changelog/db.changelog-master.yaml
   rabbitmq:
-    host: rabbitmq
+    host: localhost
     port: 5672
     username: admin
     password: password
@@ -24,9 +24,3 @@ spring:
 
 server:
   port: 8082
-
-
-rabbitmq:
-    exchange-name: brt-exchange
-    call-created-queue: call.queue
-    call-created-routing-key: call

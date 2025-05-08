@@ -1,11 +1,8 @@
-server:
-  port: 8083
-
 spring:
   application:
     name: hrs-service
   datasource:
-    url: jdbc:postgresql://localhost:5431/hrs-db
+    url: jdbc:postgresql://localhost:5433/hrsdb
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -14,16 +11,14 @@ spring:
       ddl-auto: none
   liquibase:
     enabled: true
-    change-log: classpath:/db/changelog/db.changelog-master.yaml
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+  profiles:
+    active: dev
   rabbitmq:
     host: localhost
     port: 5672
     username: admin
     password: password
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka
-    fetch-registry: true
-    register-with-eureka: true
+server:
+  port: 8083

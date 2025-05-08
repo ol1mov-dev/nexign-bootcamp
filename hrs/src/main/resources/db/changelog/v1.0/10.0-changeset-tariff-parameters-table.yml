@@ -1,0 +1,31 @@
+databaseChangeLog:
+    - changeSet:
+        id: init-tariff-parameters-table
+        author: manuchehr
+        changes:
+            - sqlFile:
+                path: 01-create-tariff-parameters-table.sql
+                dbms: postgresql
+                relativeToChangelogFile: true
+                encoding: utf8
+                splitStatements: true
+                stripComments: true
+        rollback:
+            - sqlFile:
+                  path: 01-drop-tariff-parameters-table.sql
+                  dbms: postgresql
+                  relativeToChangelogFile: true
+                  encoding: utf8
+                  splitStatements: true
+                  stripComments: true
+    - changeSet:
+        id: insert-tariff-parameters-table
+        author: manuchehr
+        changes:
+          - sqlFile:
+              path: 01-insert-tariff-parameters-table.sql
+              dbms: postgresql
+              relativeToChangelogFile: true
+              encoding: utf8
+              splitStatements: true
+              stripComments: true

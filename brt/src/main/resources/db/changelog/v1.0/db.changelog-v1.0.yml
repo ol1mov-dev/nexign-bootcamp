@@ -1,7 +1,7 @@
 databaseChangeLog:
   - include:
       relativeToChangelogFile: true
-      file: 10-changeset-users-table.yml
+      file: 10-changeset-abonents-table.yml
   - include:
       relativeToChangelogFile: true
       file: 10-changeset-calls-table.yml

@@ -1,7 +1,5 @@
 package com.projects.brt.configuration;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;

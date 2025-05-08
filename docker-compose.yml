@@ -12,76 +12,42 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=password
+    restart: unless-stopped
 
-  postgres:
+  brt_postgres:
     image: postgres:16-alpine
-    container_name: postgres_db
-    env_file:
-      - .env
+    container_name: brt_postgres_db
+    volumes:
+      - brt-postgres-data:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: postgres_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: brtdb
     ports:
       - "5432:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/16/data
-    networks:
-      - microservices-network
-
-  h2-db:
-    image: oscarfonts/h2
-    container_name: h2-database
-    environment:
-      H2_OPTIONS: -web -webAllowOthers -webPort 8081 -tcp -tcpAllowOthers -tcpPort 9092 -ifNotExists
-    ports:
-      - "8089:8089"
-      - "9092:9092"
-    volumes:
-      - h2-data:/opt/h2-data
     networks:
       - microservices-network
     restart: unless-stopped
 
-  cdr-service:
-    build:
-      context: ./cdr
-      dockerfile: Dockerfile
-    container_name: cdr-service
+  hrs_postgres:
+    image: postgres:16-alpine
+    container_name: hrs_postgres_db
+    volumes:
+      - hrs-postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hrsdb
     ports:
-      - "8081:8081"
+      - "5433:5432"
     networks:
       - microservices-network
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-      SPRING_RABBITMQ_HOST: rabbitmq
-    depends_on:
-      - rabbitmq
-      - h2-db
+    restart: unless-stopped
 
-  brt-service:
-    build:
-      context: ./brt
-      dockerfile: Dockerfile
-    container_name: brt-service
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
-      - postgres
-    networks:
-      - microservices-network
-    ports:
-      - "8082:8082"
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-      SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
 networks:
   microservices-network:
     driver: bridge
 
 volumes:
-  h2-data:
-  postgres-data:
+  brt-postgres-data:
+  hrs-postgres-data:

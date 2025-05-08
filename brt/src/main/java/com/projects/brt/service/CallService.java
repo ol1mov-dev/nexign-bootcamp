@@ -1,23 +1,22 @@
 package com.projects.brt.service;
 
 import com.projects.brt.configuration.RabbitMqConfiguration;
-import com.projects.brt.dto.CallDto;
 import com.projects.brt.dto.CallQueueDto;
 import com.projects.brt.dto.CdrDto;
+import com.projects.brt.entities.Abonent;
 import com.projects.brt.entities.Call;
-import com.projects.brt.entities.User;
-import com.projects.brt.mappers.CallMapper;
+import com.projects.brt.repositories.AbonentRepository;
 import com.projects.brt.repositories.CallRepository;
-import com.projects.brt.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Slf4j
@@ -25,21 +24,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CallService {
 
-    private final UserRepository userRepository;
+    private final AbonentRepository abonentRepository;
     private final CallRepository callRepository;
     private final RabbitTemplate rabbitTemplate;
-    private final CallMapper callMapper;
 
     /**
      * Сохраняем
-     * @param cdrs
+     * @param cdrs данные о звонках
      */
     public void saveCall(List<CdrDto> cdrs) {
         cdrs.forEach(cdr -> {
             boolean isFirstMsisdnOurClient = isOurClient(cdr.firstMsisdn());
             boolean isSecondMsisdnOurClient = isOurClient(cdr.secondMsisdn());
-
-            log.info(cdr.toString());
 
             if (isFirstMsisdnOurClient && isSecondMsisdnOurClient) {
                 callRepository.save(buildCall(cdr, cdr.firstMsisdn(), cdr.secondMsisdn()));
@@ -56,20 +52,28 @@ public class CallService {
 
 
     /**
-     * Рассчитать длительность разговора в секундах
-     * @param start
-     * @param end
-     * @return
+     * Рассчитать длительность разговора в формате hh:mm:ss
+     * @param start начало разговора
+     * @param end конец разговора
+     * @return длительность разговора в формате hh:mm:ss
      */
-    public Long calculateDurationInSeconds(String start, String end) {
+    public LocalTime calculateCallDuration(String start, String end) {
         DateTimeFormatter formatter = new DateTimeFormatterBuilder()
-                .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
-                .appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true)
-                .toFormatter();
+                                    .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
+                                    .optionalStart()
+                                    .appendFraction(ChronoField.NANO_OF_SECOND, 1, 9, true)
+                                    .optionalEnd()
+                                    .toFormatter();
 
-        return ChronoUnit.SECONDS.between(
-                LocalDateTime.parse(start, formatter),
-                LocalDateTime.parse(end, formatter)
+        LocalDateTime startTime = LocalDateTime.parse(start, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        LocalDateTime endTime = LocalDateTime.parse(end, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
+        Duration duration = Duration.between(startTime, endTime);
+
+        return LocalTime.of(
+                (int)duration.toHours(),
+                duration.toMinutesPart(),
+                duration.toSecondsPart()
         );
     }
 
@@ -79,7 +83,7 @@ public class CallService {
      * @return возвращает статус, являтся ли номер нашим клиентом
      */
     public boolean isOurClient(String msisdn) {
-        return userRepository.existsByMsisdn(msisdn);
+        return abonentRepository.existsByMsisdn(msisdn);
     }
 
     /**
@@ -95,34 +99,36 @@ public class CallService {
             String userMsisdn,
             String strangerMsisdn
     ){
-        User user = userRepository.findByMsisdn(userMsisdn);
-        CallDto callDto = CallDto
-                                .builder()
-                                .user(user)
-                                .strangerMsisdn(strangerMsisdn)
-                                .startTime(cdr.startTime())
-                                .endTime(cdr.endTime())
-                                .duration(calculateDurationInSeconds(cdr.startTime(), cdr.endTime()))
-                                .callType(cdr.callType())
-                                .build();
+        Abonent abonent = abonentRepository.findByMsisdn(userMsisdn);
+        LocalTime duration = calculateCallDuration(cdr.startTime(), cdr.endTime());
 
-        sendCallQueue(user.getId(), callDto.duration());
-        return callMapper.toCallEntity(callDto);
+        sendCallQueue(abonent.getId(), cdr.callType(), duration.toString());
+
+        return Call
+                .builder()
+                .abonent(abonent)
+                .strangerMsisdn(strangerMsisdn)
+                .startTime(cdr.startTime())
+                .endTime(cdr.endTime())
+                .duration(duration)
+                .callType(cdr.callType())
+                .build();
     }
 
     /**
      * Отправляем данные о звонке в очередь
-     * @param userId идентификатор пользователя
+     * @param abonentId идентификатор пользователя
      * @param callDuration длительность звонка в секундах
      */
-    public void sendCallQueue(Long userId, Long callDuration) {
+    public void sendCallQueue(Long abonentId, String callType, String callDuration) {
         rabbitTemplate.convertAndSend(
                 RabbitMqConfiguration.EXCHANGE_NAME,
                 RabbitMqConfiguration.CALL_CREATED_ROUTING_KEY,
                 CallQueueDto
                         .builder()
-                        .userId(userId)
-                        .callDurationInSeconds(callDuration)
+                        .abonentId(abonentId)
+                        .callType(callType)
+                        .callDuration(callDuration)
                         .build()
         );
     }

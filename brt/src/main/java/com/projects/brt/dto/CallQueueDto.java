@@ -4,6 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record CallQueueDto(
-        Long userId,
-        Long callDurationInSeconds
+        Long abonentId,
+        String callType,
+        String callDuration
 ){}

@@ -1,6 +1,7 @@
 package com.projects.brt.entities;
 
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -16,6 +17,8 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 
+import java.time.LocalTime;
+
 @Table(name = "calls")
 @Entity
 @Builder
@@ -29,8 +32,8 @@ public class Call {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "abonent_id", nullable = false)
+    private Abonent abonent;
 
     @NonNull
     private String strangerMsisdn;
@@ -45,5 +48,5 @@ public class Call {
     private String endTime;
 
     @NonNull
-    private Long duration;
+    private LocalTime duration;
 }

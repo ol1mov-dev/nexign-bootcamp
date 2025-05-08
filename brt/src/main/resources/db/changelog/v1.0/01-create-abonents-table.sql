@@ -1,0 +1,8 @@
+CREATE TABLE abonents(
+   id BIGSERIAL PRIMARY KEY,
+   first_name VARCHAR(255) NOT NULL,
+   name VARCHAR(255) NOT NULL,
+   last_name VARCHAR(255),
+   msisdn VARCHAR(50) NOT NULL UNIQUE ,
+   balance NUMERIC(12,2) NOT NULL
+);

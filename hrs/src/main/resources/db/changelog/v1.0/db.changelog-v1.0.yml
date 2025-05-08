@@ -1,13 +1,24 @@
 databaseChangeLog:
+
   - include:
+      file: 10.0-changeset-limits-table.yml
       relativeToChangelogFile: true
-      file: 10-changeset-tariff-parameters-table.yaml
   - include:
+      file: 10.0-changeset-tariff-parameters-table.yml
       relativeToChangelogFile: true
-      file: 10-changeset-tariffs-table.yaml
+
   - include:
+      file: 10.0-changeset-tariffs-table.yml
       relativeToChangelogFile: true
-      file: 10-changeset-clients-table.yaml
+
   - include:
+      file: 10.0-changeset-balances-table.yml
       relativeToChangelogFile: true
-      file: 10-changeset-transactions-table.yaml
+
+  - include:
+      file: 10.0-changeset-abonents-table.yml
+      relativeToChangelogFile: true
+
+  - include:
+      file: 10.0-changeset-bills-table.yml
+      relativeToChangelogFile: true

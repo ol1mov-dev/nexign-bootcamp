@@ -1,0 +1,31 @@
+databaseChangeLog:
+    - changeSet:
+        id: init-limits-table
+        author: manuchehr
+        changes:
+            - sqlFile:
+                path: 01-create-limits-table.sql
+                dbms: postgresql
+                relativeToChangelogFile: true
+                encoding: utf8
+                splitStatements: true
+                stripComments: true
+        rollback:
+            - sqlFile:
+                  path: 01-drop-limits-table.sql
+                  dbms: postgresql
+                  relativeToChangelogFile: true
+                  encoding: utf8
+                  splitStatements: true
+                  stripComments: true
+    - changeSet:
+        id: insert-limits-table
+        author: manuchehr
+        changes:
+          - sqlFile:
+              path: 01-insert-limits-table.sql
+              dbms: postgresql
+              relativeToChangelogFile: true
+              encoding: utf8
+              splitStatements: true
+              stripComments: true
