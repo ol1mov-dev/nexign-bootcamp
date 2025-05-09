@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: crm-service
+  datasource:
+    url: jdbc:postgresql://localhost:5434/crmdb
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 5
+  jpa:
+    hibernate:
+      ddl-auto: none
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+
+
+server:
+  port: 8084
