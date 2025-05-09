@@ -1,0 +1,10 @@
+2025-05-09 21:22:48.085 | 2025-05-09T18:22:48.085Z  INFO 1 --- [brt-service] [ntContainer#1-1] com.projects.brt.service.CallService     : Ни один из номеров не является клиентом нашей компании.
+2025-05-09 21:22:48.087 | 2025-05-09T18:22:48.087Z  INFO 1 --- [brt-service] [ntContainer#1-1] com.projects.brt.service.CallService     : Ни один из номеров не является клиентом нашей компании.
+2025-05-09 21:22:48.089 | 2025-05-09T18:22:48.089Z  INFO 1 --- [brt-service] [ntContainer#1-1] com.projects.brt.service.CallService     : Ни один из номеров не является клиентом нашей компании.
+2025-05-09 21:22:48.091 | 2025-05-09T18:22:48.091Z  INFO 1 --- [brt-service] [ntContainer#1-1] com.projects.brt.service.CallService     : Ни один из номеров не является клиентом нашей компании.
+2025-05-09 21:22:48.093 | 2025-05-09T18:22:48.093Z  INFO 1 --- [brt-service] [ntContainer#1-1] com.projects.brt.service.CallService     : Ни один из номеров не является клиентом нашей компании.
+2025-05-09 21:22:48.095 | 2025-05-09T18:22:48.094Z  INFO 1 --- [brt-service] [ntContainer#1-1] com.projects.brt.service.CallService     : Ни один из номеров не является клиентом нашей компании.
+2025-05-09 21:22:48.096 | 2025-05-09T18:22:48.096Z  INFO 1 --- [brt-service] [ntContainer#1-1] com.projects.brt.service.CallService     : Ни один из номеров не является клиентом нашей компании.
+2025-05-09 21:22:48.097 | 2025-05-09T18:22:48.097Z  INFO 1 --- [brt-service] [ntContainer#1-1] com.projects.brt.service.CallService     : Ни один из номеров не является клиентом нашей компании.
+2025-05-09 21:22:48.099 | 2025-05-09T18:22:48.099Z  INFO 1 --- [brt-service] [ntContainer#1-1] com.projects.brt.service.CallService     : Ни один из номеров не является клиентом нашей компании.
+2025-05-09 21:22:48.100 | 2025-05-09T18:22:48.100Z  INFO 1 --- [brt-service] [ntContainer#1-1] com.projects.brt.service.CallService     : Ни один из номеров не является клиентом нашей компании.

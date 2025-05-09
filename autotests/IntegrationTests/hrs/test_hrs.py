@@ -17,8 +17,7 @@ def hrs_test_abonent():
     """Фикстура для тестирования списания минут в HRS"""
     abonent_id = 88888
     user_id = 5001
-    tariff_id = 2  # Предполагается, что тариф имеет лимит минут
-
+    tariff_id = 2
 
     delete_hrs_abonent(abonent_id)
 
@@ -38,10 +37,7 @@ def hrs_test_abonent():
     }
 
     # Удаление после теста
-#   delete_hrs_abonent(abonent_id)
-
-
-
+    delete_hrs_abonent(abonent_id)
 
 # test_hrs.py
 def test_outgoing_call_minutes_deduction(hrs_test_abonent):
@@ -96,7 +92,6 @@ def test_tariff_limit_exceeded(hrs_test_abonent):
     # Устанавливаем минуты на границе лимита
     set_hrs_outgoing_minutes(abonent_id, 10)
 
-    # Звонок длительностью 20 минут
     send_call_message(
         abonent_id=abonent_id,
         duration=timedelta(minutes=20),
