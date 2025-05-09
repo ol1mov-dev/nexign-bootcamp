@@ -20,16 +20,14 @@ def create_test_abonent():
     finally:
         conn.close()
 
-    delete_abonent(abonent_id)
-
     # Создание абонента
-    created_id = create_abonent(abonent_id, user_id, tariff_id, initial_in, initial_out)
+    created_id = create_hrs_abonent(abonent_id, user_id, tariff_id, initial_in, initial_out)
     assert created_id == abonent_id, "Ошибка создания абонента"
 
     yield abonent_id, initial_in, initial_out
 
     # Удаление абонента после теста
-    delete_abonent(abonent_id)
+    delete_hrs_abonent(abonent_id)
 
     # Проверка, что удаление действительно произошло
     conn = get_hrs_db_connection()

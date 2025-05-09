@@ -21,12 +21,12 @@ def setup_test_abonent():
         conn.close()
 
     # Создание первоначального абонента
-    create_abonent(abonent_id, user_id, tariff_id, initial_in, initial_out)
+    create_hrs_abonent(abonent_id, user_id, tariff_id, initial_in, initial_out)
 
     yield abonent_id, user_id
 
     # Удаление после теста
-    delete_abonent(abonent_id)
+    delete_hrs_abonent(abonent_id)
 
 
 def test_duplicate_abonent_creation(setup_test_abonent):
@@ -37,7 +37,7 @@ def test_duplicate_abonent_creation(setup_test_abonent):
 
     # Попытка создания дубликата
     with pytest.raises(IntegrityError) as exc_info:
-        create_abonent(abonent_id, user_id, tariff_id, initial_in, initial_out)
+        create_hrs_abonent(abonent_id, user_id, tariff_id, initial_in, initial_out)
 
     # Проверка типа ошибки
     assert "duplicate key value violates unique constraint" in str(exc_info.value)

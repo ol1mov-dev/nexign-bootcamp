@@ -16,7 +16,7 @@ def get_hrs_db_connection():
         raise
 
 
-def delete_abonent(abonent_id):
+def delete_hrs_abonent(abonent_id):
     """Удаляет абонента и связанный баланс (если существуют)"""
     conn = get_hrs_db_connection()
     try:
@@ -40,7 +40,7 @@ def delete_abonent(abonent_id):
         conn.close()
 
 
-def create_abonent(abonent_id, user_id, tariff_id, initial_in_minutes=0, initial_out_minutes=0):
+def create_hrs_abonent(abonent_id, user_id, tariff_id, initial_in_minutes=0, initial_out_minutes=0):
     """Создает нового абонента с балансом и возвращает ID абонента"""
     conn = get_hrs_db_connection()
     try:

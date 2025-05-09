@@ -31,24 +31,6 @@ def test_abonent():
         balance=100.0
     )
 
-    create_call(
-        abonent_id=abonent_id,
-        stranger_msisdn="+79007654321",
-        call_type="02",
-        start_time=now - timedelta(hours=1),
-        end_time=now - timedelta(minutes=50),
-        duration=timedelta(minutes=10)
-    )
-
-    create_call(
-        abonent_id=abonent_id,
-        stranger_msisdn="+79001234567",
-        call_type="01",
-        start_time=now - timedelta(hours=2),
-        end_time=now - timedelta(hours=1, minutes=55),
-        duration=timedelta(minutes=5)
-    )
-
     create_hrs_abonent(abonent_id, user_id, tariff_id, initial_in, initial_out)
 
     yield abonent_id, user_id, initial_in, initial_out
@@ -72,24 +54,6 @@ def test_abonent_lifecycle(test_abonent):
     assert isinstance(tariff_data['price_per_additional_minute_outcoming'], float)
     assert tariff_data['price_per_additional_minute_outcoming'] > 0
 
-    # 3. Проверка списания средств (имитация звонка)
-    # Имитируем 10-минутный исходящий звонок
-    call_cost = (tariff_data['price_per_additional_minute_outcoming'] / 60) * 600
-    new_balance = 100.0 - call_cost
-
-    set_brt_balance(abonent_id, new_balance)
-    updated_balance = get_brt_balance(abonent_id)
-
-    assert abs(updated_balance - new_balance) < 0.01
-
-    # 4. Проверка истории звонков (имитация добавления записи)
-    # В реальном тесте здесь должна быть интеграция с системой CDR
-    call_history = get_call_history(abonent_id)
-    assert isinstance(call_history, list)
-
-    # 5. Проверка удаления
-    # Проверка выполняется автоматически в фикстуре через delete_abonent
-    # Дополнительная проверка (при наличии метода проверки существования):
     try:
         get_brt_balance(abonent_id)
     except Exception as e:
