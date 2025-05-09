@@ -72,32 +72,95 @@ def create_hrs_abonent(abonent_id, user_id, tariff_id, initial_in_minutes=0, ini
     finally:
         conn.close()
 
+
 def set_hrs_outgoing_minutes(abonent_id, minutes):
     """Обновляет исходящие минуты в HRS"""
     conn = get_hrs_db_connection()
     try:
         with conn.cursor() as cur:
+            # Получаем balance_id из таблицы abonents
+            cur.execute(
+                "SELECT balance_id FROM abonents WHERE id = %s",
+                (abonent_id,)
+            )
+            balance_id = cur.fetchone()[0]  # Получаем настоящий ID баланса
+
+            # Обновляем минуты в таблице balances
             cur.execute(
                 "UPDATE balances SET amount_of_minutes_for_outcoming_call = %s WHERE id = %s",
-                (minutes, abonent_id)
+                (minutes, balance_id)  # Используем balance_id вместо abonent_id
             )
             conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise RuntimeError(f"Ошибка обновления минут: {str(e)}")
     finally:
         conn.close()
 
 
 def get_hrs_outgoing_minutes(abonent_id):
-    """Возвращает минуты как целое число"""
+    """Возвращает исходящие минуты из баланса абонента"""
     conn = get_hrs_db_connection()
     try:
         with conn.cursor() as cur:
+            # Получаем ID баланса из таблицы абонентов
             cur.execute(
-                "SELECT amount_of_minutes_for_outcoming_call FROM balances WHERE id = %s",
+                "SELECT balance_id FROM abonents WHERE id = %s",
                 (abonent_id,)
             )
-            return cur.fetchone()[0]
+            balance_id_row = cur.fetchone()
+
+            if not balance_id_row:
+                raise ValueError(f"Абонент {abonent_id} не найден")
+
+            balance_id = balance_id_row[0]
+
+            # Получаем минуты из таблицы балансов
+            cur.execute(
+                "SELECT amount_of_minutes_for_outcoming_call FROM balances WHERE id = %s",
+                (balance_id,)
+            )
+            result = cur.fetchone()
+
+            if result:
+                return result[0]
+            else:
+                raise ValueError(f"Баланс для абонента {abonent_id} не найден")
     finally:
         conn.close()
+
+
+def get_hrs_incoming_minutes(abonent_id):
+    """Возвращает исходящие минуты из баланса абонента"""
+    conn = get_hrs_db_connection()
+    try:
+        with conn.cursor() as cur:
+            # Получаем ID баланса из таблицы абонентов
+            cur.execute(
+                "SELECT balance_id FROM abonents WHERE id = %s",
+                (abonent_id,)
+            )
+            balance_id_row = cur.fetchone()
+
+            if not balance_id_row:
+                raise ValueError(f"Абонент {abonent_id} не найден")
+
+            balance_id = balance_id_row[0]
+
+            # Получаем минуты из таблицы балансов
+            cur.execute(
+                "SELECT amount_of_minutes_for_incoming_call FROM balances WHERE id = %s",
+                (balance_id,)
+            )
+            result = cur.fetchone()
+
+            if result:
+                return result[0]
+            else:
+                raise ValueError(f"Баланс для абонента {abonent_id} не найден")
+    finally:
+        conn.close()
+
 
 
 def get_tariff_cost_details(abonent_id):

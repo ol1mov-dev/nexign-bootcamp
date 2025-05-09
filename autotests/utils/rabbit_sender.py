@@ -55,6 +55,8 @@ def send_call_message(abonent_id, duration, call_type="01"):
             "callDuration": duration_str
         }
 
+        print(f" [x] Sent {message}")
+
         channel.basic_publish(
             exchange='',
             routing_key='call.queue',
@@ -64,7 +66,6 @@ def send_call_message(abonent_id, duration, call_type="01"):
                 content_type='application/json'
             )
         )
-        print(f" [x] Sent {message}")
     except pika.exceptions.UnroutableError:
         print("Message could not be delivered")
     finally:
