@@ -99,3 +99,37 @@ def get_hrs_outgoing_minutes(abonent_id):
     finally:
         conn.close()
 
+
+def get_tariff_cost_details(abonent_id):
+    """Возвращает данные о стоимости звонков для тарифа абонента."""
+    if not isinstance(abonent_id, int):
+        raise ValueError("abonent_id must be an integer")
+
+    conn = get_hrs_db_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT 
+                    t.price,
+                    l.price_per_additional_minute_outcoming,
+                    l.price_per_additional_minute_incoming
+                FROM abonents a
+                JOIN tariff_parameters t ON a.tariff_id = t.id
+                JOIN limits l ON t.limit_id = l.id
+                WHERE a.id = %s
+                """,
+                (abonent_id,)
+            )
+            result = cur.fetchone()
+            if result:
+                return {
+                    'tariff_price': float(result[0]),
+                    'price_per_additional_minute_outcoming': float(result[1]),
+                    'price_per_additional_minute_incoming': float(result[2])
+                }
+            return None
+    except psycopg2.Error as e:
+        raise
+    finally:
+        conn.close()

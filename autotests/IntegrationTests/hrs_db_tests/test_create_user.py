@@ -20,6 +20,8 @@ def create_test_abonent():
     finally:
         conn.close()
 
+    delete_abonent(abonent_id)
+
     # Создание абонента
     created_id = create_abonent(abonent_id, user_id, tariff_id, initial_in, initial_out)
     assert created_id == abonent_id, "Ошибка создания абонента"
