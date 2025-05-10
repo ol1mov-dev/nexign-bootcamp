@@ -94,7 +94,7 @@ def test_cdr_processing_1(json_file: str = cdr_path_1):
             print(f"Ошибка создания {msisdn}: {str(e)}")
 
     send_cdr_from_file(cdr_path_1_for_func)
-
+    time.sleep(3)
     for call in cdr_data:
         caller_id = generate_abonent_id(call["firstMsisdn"])
 
@@ -158,7 +158,7 @@ def test_cdr_processing_2(json_file: str = cdr_path_2):
             print(f"Ошибка создания {msisdn}: {str(e)}")
 
     send_cdr_from_file(cdr_path_2_for_func)
-
+    time.sleep(3)
     for call in cdr_data:
         caller_id = generate_abonent_id(call["firstMsisdn"])
 
