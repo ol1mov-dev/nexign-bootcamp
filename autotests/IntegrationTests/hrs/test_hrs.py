@@ -9,7 +9,7 @@ from utils.hrs_interaction import (
     set_hrs_outgoing_minutes,
     get_tariff_cost_details, get_hrs_incoming_minutes
 )
-from utils.rabbit_sender import send_call_message, send_json_message
+from utils.rabbit_sender import send_call_message
 
 
 @pytest.fixture
@@ -54,7 +54,7 @@ def test_outgoing_call_minutes_deduction(hrs_test_abonent):
         duration=timedelta(minutes=15),
         call_type="01"
     )
-
+    time.sleep(1)
     # Проверяем обновленные минуты
     assert get_hrs_incoming_minutes(abonent_id) == incoming_minutes
     updated_minutes = get_hrs_outgoing_minutes(abonent_id)
