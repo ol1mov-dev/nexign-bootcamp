@@ -57,7 +57,7 @@ def delete_brt_abonent(abonent_id):
     try:
         with conn.cursor() as cur:
             # Удаляем связанные вызовы
-            cur.execute("DELETE FROM calls WHERE abonent_id = %s", (abonent_id,))
+#            cur.execute("DELETE FROM calls WHERE abonent_id = %s", (abonent_id,))
             # Удаляем абонента
             cur.execute("DELETE FROM abonents WHERE id = %s", (abonent_id,))
             conn.commit()
