@@ -7,7 +7,6 @@ import os
 # Данные для добавления
 cdr_data = "..//cdrs_files//cdr3.json"
 
-
 def load_cdr_data(file_path: str) -> list:
     """Загружает данные из JSON-файла"""
     if not os.path.exists(file_path):

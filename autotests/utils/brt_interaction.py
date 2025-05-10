@@ -1,8 +1,6 @@
 import psycopg2
-from decimal import Decimal
 from config import *
 from decimal import Decimal
-from datetime import timedelta
 from datetime import datetime, timedelta, time
 
 

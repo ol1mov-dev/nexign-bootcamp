@@ -1,0 +1,4 @@
+pytest
+pika
+psycopg2
+psycopg2-binary

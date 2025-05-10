@@ -31,7 +31,7 @@ def callback(ch, method, properties, body):
     try:
         json_data = json.loads(body)
         print(json_data)
-        with open('../messages.json', 'a') as f:
+        with open('../trash/messages.json', 'a') as f:
             f.write(json.dumps(json_data) + '\n')
     except json.JSONDecodeError:
         print("Не JSON:", body)

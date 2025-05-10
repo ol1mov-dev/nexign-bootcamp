@@ -12,9 +12,9 @@ from utils.hrs_interaction import create_hrs_abonent, delete_hrs_abonent
 from utils.rabbit_sender import *
 import os
 
-cdr_path_1 = os.path.join("..", "..", "cdrs_files", "cdr3.json")
+cdr_path_1 = os.path.join("..", "..", "..", "cdrs_files", "cdr3.json")
 cdr_path_1_for_func = "..//cdrs_files//cdr3.json"
-cdr_path_2 = os.path.join("..", "..", "cdrs_files", "cdr4.json")
+cdr_path_2 = os.path.join("..", "..", "..", "cdrs_files", "cdr4.json")
 cdr_path_2_for_func = "..//cdrs_files//cdr4.json"
 
 def load_cdr_data(file_path: str) -> list:
