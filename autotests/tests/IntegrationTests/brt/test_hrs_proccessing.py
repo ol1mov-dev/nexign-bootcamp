@@ -12,8 +12,10 @@ from utils.rabbit_sender import send_bill_message
 import time
 from datetime import datetime
 
-bill_path_1 = os.path.join("..", "..", "..", "bills_jsons", "bill1.json")
-bill_path_2 = os.path.join("..", "..", "..", "bills_jsons", "bill3.json")
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+bill_path_1 = os.path.join(PROJECT_ROOT, "bills_jsons", "bill1.json")
+bill_path_2 = os.path.join(PROJECT_ROOT, "bills_jsons", "bill3.json")
 
 
 def load_bill_data(file_path: str) -> list:
