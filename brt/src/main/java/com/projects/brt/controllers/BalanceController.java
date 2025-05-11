@@ -1,7 +1,7 @@
 package com.projects.brt.controllers;
 
 import com.projects.brt.dto.BillDto;
-import com.projects.brt.service.BalanceService;
+import com.projects.brt.services.BalanceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;

@@ -1,4 +1,4 @@
-package com.projects.brt.service;
+package com.projects.brt.services;
 
 import com.projects.brt.configuration.RabbitMqConfiguration;
 import com.projects.brt.dto.CallQueueDto;

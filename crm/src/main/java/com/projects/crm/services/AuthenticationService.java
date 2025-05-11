@@ -19,60 +19,75 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class AuthenticationService {
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    private JwtService jwtService;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
+
+    public AuthenticationService(
+            UserRepository userRepository,
+            AuthenticationManager authenticationManager,
+            JwtService jwtService,
+            PasswordEncoder passwordEncoder
+    ){
+        this.userRepository = userRepository;
+        this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     public ResponseEntity<JwtResponse> register(@Valid RegisterUserRequest request) {
-        userRepository.save(
-                User
+        User savedUser = userRepository.save(
+                    User
                         .builder()
                         .firstName(request.firstname())
                         .name(request.name())
                         .lastName(request.lastname())
                         .email(request.email())
-                        .password(
-                                passwordEncoder.encode(request.password())
-                        )
+                        .password(passwordEncoder.encode(request.password()))
                         .role(Role.USER)
                         .build()
         );
 
-        String jwtToken = jwtService.generateToken(request.email());
+
+        String jwtToken = jwtService.generateToken(
+                request.email(),
+                Map.of()
+        );
         return ResponseEntity.ok(
                 JwtResponse.builder().token(jwtToken).build()
         );
     }
 
     public ResponseEntity<JwtResponse> authenticate(AuthenticateUserRequest request) {
-        log.info("123");
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
-        log.info("authenticated user: {}", authentication.getPrincipal());
+
         if (authentication.isAuthenticated()) {
             log.info("Authentication successful");
             return ResponseEntity.ok(
                     JwtResponse.builder()
-                            .token(jwtService.generateToken(request.email()))
+                            .token(jwtService.generateToken(request.email(), Map.of()))
                             .build()
             );
         }
+
         log.info("Authentication failed");
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(
-                        JwtResponse.builder().token(null).build()
+                        JwtResponse
+                                .builder()
+                                .token(null)
+                                .build()
                 );
     }
 }

@@ -1,4 +1,4 @@
-package com.projects.brt.service;
+package com.projects.brt.services;
 
 import com.projects.brt.dto.AbonentDto;
 import com.projects.brt.entities.Abonent;
@@ -30,4 +30,5 @@ public class AbonentService {
                 ).getId()
         );
     }
+
 }

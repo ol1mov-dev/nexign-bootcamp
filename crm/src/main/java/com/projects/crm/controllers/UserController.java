@@ -30,7 +30,6 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('canReadUserInfo')")
     @GetMapping("/{id}")
     public ResponseEntity<UserInfoResponse> getInfo(@PathVariable long id) {
-
         return userService.getInfo(id);
     }
 
@@ -39,5 +38,4 @@ public class UserController {
     public ResponseEntity<UserCreatedResponse> create(@RequestBody CreateUserRequest createUserRequest) {
         return userService.create(createUserRequest);
     }
-
 }

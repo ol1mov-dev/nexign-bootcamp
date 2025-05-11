@@ -15,18 +15,25 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class UserService {
 
+    private final RestTemplate restTemplate;
     @Value(value = "${brt-service.uri}")
     private String brtServiceUri;
 
     @Value(value = "${hrs-service.uri}")
     private String hrsServiceUri;
 
+    public UserService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+
     public ResponseEntity<UserInfoResponse> getInfo(long id) {
+        restTemplate.getForObject(brtServiceUri + "/api/abonent/" + id, UserInfoResponse.class);
+
         return ResponseEntity.ok(null);
     }
 
     public ResponseEntity<UserCreatedResponse> create(CreateUserRequest createUserRequest) {
-        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<Long> abonentId  = restTemplate.postForEntity(
             brtServiceUri + "/abonent/create",
             AbonentDto

@@ -1,7 +1,7 @@
 package com.projects.brt.controllers;
 
 import com.projects.brt.dto.CdrDto;
-import com.projects.brt.service.CallService;
+import com.projects.brt.services.CallService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.web.bind.annotation.RestController;
