@@ -73,7 +73,7 @@ def test_full_e2e_flow(e2e_setup):
     assert get_brt_balance(TEST_ABONENT_ID) == 300.0, "Абонент не создан в BRT"
 
     send_cdr_from_file(cdr_path)
-    time.sleep(3)
+    time.sleep(10)
 
     # Часть 2: Проверка списания минут
     updated_out = get_hrs_outgoing_minutes(TEST_ABONENT_ID)

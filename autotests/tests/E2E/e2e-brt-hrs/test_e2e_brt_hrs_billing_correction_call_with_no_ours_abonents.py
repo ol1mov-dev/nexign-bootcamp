@@ -71,7 +71,7 @@ def test_e2e_outgoingcall_correction_test(e2e_setup):
     old_balance = get_brt_balance(TEST_ABONENT_ID)
 
     send_cdr_from_file(cdr_path_outgoing)
-    time.sleep(3)
+    time.sleep(10)
 
     new_balance = get_brt_balance(TEST_ABONENT_ID)
     assert new_balance == old_balance - 25, "Баланс обновлен странно"
@@ -86,7 +86,7 @@ def test_e2e_incomingcall_correct_test(e2e_setup):
     old_balance = get_brt_balance(TEST_ABONENT_ID)
 
     send_cdr_from_file(cdr_path_incoming)
-    time.sleep(3)
+    time.sleep(10)
 
     new_balance = get_brt_balance(TEST_ABONENT_ID)
     assert new_balance == old_balance - 25, "Баланс обновлен странно"

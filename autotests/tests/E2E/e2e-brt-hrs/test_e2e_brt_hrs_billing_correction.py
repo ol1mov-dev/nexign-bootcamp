@@ -94,7 +94,7 @@ def test_e2e_correct_outgoing_billing_tariff1_test(e2e_setup):
     oldbalance_2 = get_brt_balance(TEST_ABONENT_ID-10)
 
     send_cdr_from_file(cdr_path_outgoing)
-    time.sleep(3)
+    time.sleep(10)
 
     new_balance = get_brt_balance(TEST_ABONENT_ID)
     assert new_balance == oldbalance_1 - 15, "Баланс обновлен странно"
@@ -113,12 +113,12 @@ def test_e2e_correct_incomming_billing_tariff1_test(e2e_setup):
 
 
     send_cdr_from_file(cdr_path_outgoing)
-    time.sleep(3)
+    time.sleep(10)
 
     new_balance = get_brt_balance(TEST_ABONENT_ID)
     assert new_balance == oldbalance_1 - 15, "Баланс обновлен странно"
-    new_balance_2 = get_hrs_outgoing_minutes(TEST_ABONENT_ID - 10)
-    assert new_balance == oldbalance_2 - 15, "Баланс обновлен странно"
+    new_balance_2 = get_brt_balance(TEST_ABONENT_ID - 10)
+    assert new_balance_2 == oldbalance_2 - 15, "Баланс обновлен странно"
 
 
 
