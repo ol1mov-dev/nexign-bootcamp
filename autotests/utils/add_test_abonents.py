@@ -49,7 +49,7 @@ def add_test_data(json_file: str = cdr_data):
                 first_name="Тест",
                 name="Тестович",
                 msisdn=msisdn,
-                last_name="Тестовый",
+                middle_name="Тестовый",
                 balance=100.0
             )
 

@@ -14,7 +14,7 @@ def test_abonent():
     abonent_id = 999999
     now = datetime.now()
     user_id = abonent_id
-    tariff_id = 1
+    tariff_id = 11
     initial_in = 10
     initial_out = 20
 
@@ -26,8 +26,8 @@ def test_abonent():
         abonent_id=user_id,
         first_name="Тест",
         name="Тестович",
-        msisdn="+79000000000",
-        last_name="Тестовый",
+        msisdn="+79000000001",
+        middle_name="Тестовый",
         balance=100.0
     )
 
@@ -54,7 +54,7 @@ def test_abonent():
     yield abonent_id, user_id, initial_in, initial_out
 
     delete_brt_abonent(abonent_id)
-    delete_brt_abonent(user_id)
+    delete_hrs_abonent(user_id)
 
 
 def test_abonent_lifecycle(test_abonent):

@@ -162,37 +162,37 @@ def get_hrs_incoming_minutes(abonent_id):
         conn.close()
 
 
-
 def get_tariff_cost_details(abonent_id):
-    """Возвращает данные о стоимости звонков для тарифа абонента."""
-    if not isinstance(abonent_id, int):
-        raise ValueError("abonent_id must be an integer")
-
+    """Returns tariff details for the given abonent"""
     conn = get_hrs_db_connection()
     try:
         with conn.cursor() as cur:
-            cur.execute(
-                """
+            cur.execute("""
                 SELECT 
-                    t.price,
+                    tp.price as tariff_price,
                     l.price_per_additional_minute_outcoming,
-                    l.price_per_additional_minute_incoming
+                    l.price_per_additional_minute_incoming,
+                    l.minutes_for_outcoming,
+                    l.minutes_for_incoming,
+                    tp.payment_period_in_days
                 FROM abonents a
-                JOIN tariff_parameters t ON a.tariff_id = t.id
-                JOIN limits l ON t.limit_id = l.id
+                JOIN tariffs t ON a.tariff_id = t.id
+                JOIN tariff_parameters tp ON t.tariff_parameters_id = tp.id
+                LEFT JOIN limits l ON tp.limit_id = l.id
                 WHERE a.id = %s
-                """,
-                (abonent_id,)
-            )
+            """, (abonent_id,))
             result = cur.fetchone()
-            if result:
-                return {
-                    'tariff_price': float(result[0]),
-                    'price_per_additional_minute_outcoming': float(result[1]),
-                    'price_per_additional_minute_incoming': float(result[2])
-                }
-            return None
-    except psycopg2.Error as e:
-        raise
+
+            if not result:
+                return None
+
+            return {
+                'tariff_price': float(result[0]),
+                'price_per_additional_minute_outcoming': float(result[1]),
+                'price_per_additional_minute_incoming': float(result[2]),
+                'minutes_for_outcoming': result[3],
+                'minutes_for_incoming': result[4],
+                'payment_period_in_days': result[5]
+            }
     finally:
         conn.close()

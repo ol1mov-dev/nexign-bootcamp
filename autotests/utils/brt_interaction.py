@@ -19,7 +19,7 @@ def get_brt_db_connection():
         raise
 
 
-def create_brt_abonent(abonent_id, first_name, name, msisdn, last_name=None, balance=0.0):
+def create_brt_abonent(abonent_id, first_name, name, msisdn, middle_name=None, balance=0.0):
     """Создает нового абонента в BRT системе"""
     if not all(isinstance(arg, (int, str)) for arg in [abonent_id, first_name, name, msisdn]):
         raise ValueError("Некорректные типы данных аргументов")
@@ -29,13 +29,13 @@ def create_brt_abonent(abonent_id, first_name, name, msisdn, last_name=None, bal
         with conn.cursor() as cur:
             cur.execute(
                 """INSERT INTO abonents (
-                    id, first_name, name, last_name, msisdn, balance
+                    id, first_name, name, middle_name, msisdn, balance
                 ) VALUES (%s, %s, %s, %s, %s, %s) RETURNING id""",
                 (
                     abonent_id,
                     first_name.strip(),
                     name.strip(),
-                    last_name.strip() if last_name else None,
+                    middle_name.strip() if middle_name else None,
                     msisdn.strip(),
                     Decimal(str(balance))
                 )
@@ -57,7 +57,7 @@ def delete_brt_abonent(abonent_id):
     try:
         with conn.cursor() as cur:
             # Удаляем связанные вызовы
-#            cur.execute("DELETE FROM calls WHERE abonent_id = %s", (abonent_id,))
+            cur.execute("DELETE FROM calls WHERE abonent_id = %s", (abonent_id,))
             # Удаляем абонента
             cur.execute("DELETE FROM abonents WHERE id = %s", (abonent_id,))
             conn.commit()
