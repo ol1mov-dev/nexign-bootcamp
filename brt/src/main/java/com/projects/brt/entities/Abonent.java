@@ -17,6 +17,7 @@ import lombok.NonNull;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Table(name = "abonents")
@@ -31,13 +32,13 @@ public class Abonent{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NonNull
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @NonNull
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Nullable
+    @Column(name = "last_name", nullable = true)
     private String lastName;
 
     @Column(name = "msisdn", nullable = false, unique = true)
@@ -48,4 +49,7 @@ public class Abonent{
 
     @Column(name = "balance", precision = 12, scale = 2, nullable = false)
     private BigDecimal balance;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
 }

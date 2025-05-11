@@ -44,7 +44,7 @@ public class AuthenticationService {
                         .password(
                                 passwordEncoder.encode(request.password())
                         )
-                        .role(Role.ADMIN)
+                        .role(Role.USER)
                         .build()
         );
 

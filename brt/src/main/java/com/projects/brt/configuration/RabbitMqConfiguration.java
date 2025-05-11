@@ -13,11 +13,18 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitMqConfiguration {
     public static String EXCHANGE_NAME = "brt-exchange";
     public static String CALL_CREATED_QUEUE = "call.queue";
+    public static String BILL_CREATED_QUEUE = "bill.queue";
     public static String CALL_CREATED_ROUTING_KEY = "call";
 
     @Bean
     public MessageConverter jsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
+    }
+
+
+    @Bean
+    public Queue billQueue() {
+        return new Queue(BILL_CREATED_QUEUE, true);
     }
 
     @Bean

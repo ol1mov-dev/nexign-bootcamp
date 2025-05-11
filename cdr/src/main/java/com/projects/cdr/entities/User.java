@@ -19,7 +19,7 @@ public class User {
     private String firstName;
 
     @NonNull
-    private String lastName;
+    private String name;
 
     @NonNull
     private String number;

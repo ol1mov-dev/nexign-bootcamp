@@ -9,6 +9,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
@@ -19,6 +23,14 @@ spring:
     port: 5672
     username: admin
     password: password
-
+  logging:
+    level:
+      org:
+        hibernate:
+            SQL: DEBUG
+            type:
+              descriptor:
+                sql:
+                  BasicBinder: TRACE
 server:
   port: 8083

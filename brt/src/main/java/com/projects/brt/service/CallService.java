@@ -7,6 +7,7 @@ import com.projects.brt.entities.Abonent;
 import com.projects.brt.entities.Call;
 import com.projects.brt.repositories.AbonentRepository;
 import com.projects.brt.repositories.CallRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -99,10 +100,17 @@ public class CallService {
             String userMsisdn,
             String strangerMsisdn
     ){
-        Abonent abonent = abonentRepository.findByMsisdn(userMsisdn);
+        Abonent abonent = abonentRepository
+                .findByMsisdn(userMsisdn)
+                .orElseThrow(() -> new EntityNotFoundException("Абонент не найден: " + userMsisdn));
+
+
         LocalTime duration = calculateCallDuration(cdr.startTime(), cdr.endTime());
 
-        sendCallQueue(abonent.getId(), cdr.callType(), duration.toString());
+        sendCallQueue(
+                abonent.getId(),
+                cdr.callType(),
+                duration.toString());
 
         return Call
                 .builder()

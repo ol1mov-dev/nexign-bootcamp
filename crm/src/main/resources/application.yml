@@ -19,3 +19,9 @@ spring:
 
 server:
   port: 8084
+
+brt-service:
+  uri: http://localhost:8082/api
+
+hrs-service:
+  uri: http://localhost:8083/api
