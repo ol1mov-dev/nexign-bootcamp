@@ -2,7 +2,7 @@ CREATE TABLE abonents(
    id BIGSERIAL PRIMARY KEY,
    first_name VARCHAR(50) NOT NULL,
    name VARCHAR(50) NOT NULL,
-   last_name VARCHAR(50),
+   middle_name VARCHAR(50),
    msisdn VARCHAR(50) NOT NULL UNIQUE ,
    balance NUMERIC(12,2) NOT NULL,
    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

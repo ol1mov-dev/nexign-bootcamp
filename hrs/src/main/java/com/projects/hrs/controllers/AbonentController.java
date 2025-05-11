@@ -1,8 +1,7 @@
-package com.projects.hrs.controller;
+package com.projects.hrs.controllers;
 
-import com.projects.hrs.controller.requests.CreateAbonentHrsRequest;
-import com.projects.hrs.controller.requests.CreateAbonentRequest;
-import com.projects.hrs.service.AbonentService;
+import com.projects.hrs.controllers.requests.CreateAbonentHrsRequest;
+import com.projects.hrs.services.AbonentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

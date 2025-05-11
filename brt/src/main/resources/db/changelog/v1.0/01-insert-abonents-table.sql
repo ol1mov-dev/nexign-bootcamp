@@ -1,5 +1,5 @@
 
-INSERT INTO abonents (first_name, name, last_name, msisdn, balance)
+INSERT INTO abonents (first_name, name, middle_name, msisdn, balance)
 VALUES
 ('Петр', 'Петрович', 'a', '+79262345678',  400),
 ('Анна', 'Сергеевна', 'null', '+79031234567',  200),

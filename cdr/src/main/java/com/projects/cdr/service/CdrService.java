@@ -34,7 +34,7 @@ public class CdrService {
         List<CdrDto> cdrs = new ArrayList<>();
         LocalDateTime dateTime = LocalDateTime.now().minusYears(1);
 
-        for (int i = 1; i < 12; i++) {
+        for (int i = 0; i < 1; i++) {
             dateTime = dateTime.plusHours(3);
 
             LocalDateTime startTime = dateTime.plusHours(4);
@@ -60,8 +60,9 @@ public class CdrService {
                         cdrMapper.toCdrEntity(buildCdrDto(startTime, endTime))
                     );
                 }
+                log.info("Generated CDR: {}", cdrs.get(0).toString());
 
-                if (cdrs.size() >= 10){
+                if (cdrs.size() == 1){
                     sendCdrsQueue(cdrs);
                     cdrs.clear();
                 }

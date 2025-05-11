@@ -34,6 +34,7 @@ public class CallService {
      * @param cdrs данные о звонках
      */
     public void saveCall(List<CdrDto> cdrs) {
+
         cdrs.forEach(cdr -> {
             boolean isFirstMsisdnOurClient = isOurClient(cdr.firstMsisdn());
             boolean isSecondMsisdnOurClient = isOurClient(cdr.secondMsisdn());
@@ -112,7 +113,7 @@ public class CallService {
                 cdr.callType(),
                 duration.toString());
 
-        return Call
+        Call call = Call
                 .builder()
                 .abonent(abonent)
                 .strangerMsisdn(strangerMsisdn)
@@ -121,6 +122,16 @@ public class CallService {
                 .duration(duration)
                 .callType(cdr.callType())
                 .build();
+
+        log.info("[ {}, {}, {}, {}, {} ]",
+                abonent.getId(),
+                call.getStrangerMsisdn(),
+                call.getDuration(),
+                call.getStartTime(),
+                call.getEndTime()
+        );
+
+        return call;
     }
 
     /**

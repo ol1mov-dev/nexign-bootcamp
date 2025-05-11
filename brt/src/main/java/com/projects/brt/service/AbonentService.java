@@ -23,7 +23,7 @@ public class AbonentService {
                                 .builder()
                                 .firstName(abonentDto.firstName())
                                 .name(abonentDto.name())
-                                .lastName(abonentDto.lastName())
+                                .middleName(abonentDto.lastName())
                                 .msisdn(abonentDto.msisdn())
                                 .balance(abonentDto.balance())
                                 .build()

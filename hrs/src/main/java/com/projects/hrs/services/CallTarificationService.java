@@ -1,4 +1,4 @@
-package com.projects.hrs.service;
+package com.projects.hrs.services;
 
 import com.projects.hrs.commons.CallType;
 import com.projects.hrs.configuration.RabbitMqConfiguration;
@@ -6,21 +6,28 @@ import com.projects.hrs.dto.BillDto;
 import com.projects.hrs.entities.Abonent;
 import com.projects.hrs.entities.Limit;
 import com.projects.hrs.repositories.AbonentRepository;
-import lombok.AllArgsConstructor;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Optional;
 
 @Slf4j
 @Service
-@AllArgsConstructor
 public class CallTarificationService {
 
     private final AbonentRepository abonentRepository;
     private final RabbitTemplate rabbitTemplate;
+
+    public CallTarificationService(AbonentRepository abonentRepository, RabbitTemplate rabbitTemplate) {
+        this.abonentRepository = abonentRepository;
+        this.rabbitTemplate = rabbitTemplate;
+    }
 
     /**
      * Рассчитываем общее количество минут звонка
@@ -51,6 +58,11 @@ public class CallTarificationService {
                 BigDecimal.valueOf(totalMinutes).multiply(tariffLimits.getPricePerAdditionalMinuteIncoming()):
                 BigDecimal.valueOf(totalMinutes).multiply(tariffLimits.getPricePerAdditionalMinuteOutcoming());
 
+        log.info("Total call price: {}; Total minutes: {}; Call Type: {}",
+                totalPrice,
+                totalMinutes,
+                callType
+        );
         sendBillQueue(abonent.getId(), totalPrice);
     }
 
@@ -76,12 +88,25 @@ public class CallTarificationService {
         } else {
             if (callType.equals(CallType.INCOMING.getCallType())) {
                 abonent.getBalance().setAmountOfMinutesForIncomingCall(balance);
+                log.info(abonent.getBalance().getAmountOfMinutesForIncomingCall() + "");
                 abonentRepository.save(abonent);
             } else {
                 abonent.getBalance().setAmountOfMinutesForOutcomingCall(balance);
+                log.info(abonent.getBalance().getAmountOfMinutesForOutcomingCall() + "");
                 abonentRepository.save(abonent);
             }
         }
+    }
+
+    public void payMonthlyPayment(Long abonentId, int paymentPeriodInDays) {
+//        Abonent abonent = abonentRepository.findById(abonentId)
+//                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
+//
+//        LocalDateTime tariffActivatedAt = abonent.getCreatedAt();
+//
+//        if (tariffActivatedAt != null && Duration.between(tariffActivatedAt, LocalDateTime.now()).toDays() >= 30) {
+//            sendBillQueue(abonent.getId(), abonent.getTariff().getTariffParameters().getPrice());
+//        }
     }
 
     public void sendBillQueue(Long abonentId, BigDecimal totalPrice){

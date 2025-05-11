@@ -1,4 +1,4 @@
-package com.projects.hrs.controller.responses;
+package com.projects.hrs.controllers.responses;
 
 import lombok.Builder;
 

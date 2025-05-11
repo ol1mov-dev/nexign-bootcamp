@@ -1,4 +1,4 @@
-package com.projects.hrs.controller.requests;
+package com.projects.hrs.controllers.requests;
 
 import lombok.Builder;
 

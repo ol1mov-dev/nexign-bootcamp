@@ -38,8 +38,8 @@ public class Abonent{
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "last_name", nullable = true)
-    private String lastName;
+    @Column(name = "middle_name", nullable = true)
+    private String middleName;
 
     @Column(name = "msisdn", nullable = false, unique = true)
     private String msisdn;

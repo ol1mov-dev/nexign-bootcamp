@@ -126,26 +126,31 @@ public class CdrServiceTest {
     }
 
     @Test
-    void testSplitCallIntervalAtMidnight() {
+    void splitCallIntervalAtMidnight_shouldSplitCallCrossingMidnight() {
         // Given
-        LocalDateTime startCall = LocalDateTime.of(2023, 1, 1, 23, 55, 0);
-        LocalDateTime endCall = LocalDateTime.of(2023, 1, 2, 0, 3, 0);
+        LocalDateTime startCall = LocalDateTime.of(2025, 5, 10, 23, 50);
+        LocalDateTime endCall = LocalDateTime.of(2025, 5, 11, 0, 10);
+
+        User mockUser = new User();
+        mockUser.setNumber("79001234567");
+        when(userRepository.findRandomUser()).thenReturn(mockUser);
 
         // When
         Map<String, CdrDto> result = cdrService.splitCallIntervalAtMidnight(startCall, endCall);
 
         // Then
         assertNotNull(result);
-        assertEquals(2, result.size());
+        assertTrue(result.containsKey("firstCdr"));
+        assertTrue(result.containsKey("secondCdr"));
 
-        CdrDto firstCdr = result.get("firstCdr");
-        CdrDto secondCdr = result.get("secondCdr");
+        CdrDto first = result.get("firstCdr");
+        CdrDto second = result.get("secondCdr");
 
-        assertEquals(startCall.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), firstCdr.startTime());
-        assertEquals("2023-01-01T23:59:59", firstCdr.endTime());
+        assertEquals("2025-05-10T23:50:00", first.startTime());
+        assertEquals("2025-05-10T23:59:59", first.endTime());
 
-        assertEquals("2023-01-02T00:00:00", secondCdr.startTime());
-        assertEquals(endCall.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), secondCdr.endTime());
+        assertEquals("2025-05-11T00:00:00", second.startTime());
+        assertEquals("2025-05-11T00:10:00", second.endTime());
     }
 
     @Test
