@@ -20,7 +20,7 @@ from utils.hrs_interaction import (
 from utils.rabbit_sender import send_cdr_from_file, send_call_message, send_bill_message
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-cdr_path = os.path.join(PROJECT_ROOT, "cdrs_files", "cdr_e2e.json")
+cdr_path = os.path.join(PROJECT_ROOT, "cdrs_files", "cdr_e2e_outgoing.json")
 
 TEST_ABONENT_ID = 88888
 TARIFF_ID = 12
