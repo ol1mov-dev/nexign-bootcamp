@@ -17,7 +17,7 @@ def hrs_test_abonent():
     """Фикстура для тестирования списания минут в HRS"""
     abonent_id = 88888
     user_id = 5001
-    tariff_id = 2
+    tariff_id = 12
 
     delete_hrs_abonent(abonent_id)
 
@@ -54,6 +54,7 @@ def test_outgoing_call_minutes_deduction(hrs_test_abonent):
         duration=timedelta(minutes=15),
         call_type="01"
     )
+
     time.sleep(1)
     # Проверяем обновленные минуты
     assert get_hrs_incoming_minutes(abonent_id) == incoming_minutes
@@ -76,7 +77,7 @@ def test_incoming_call_no_deduction(hrs_test_abonent):
         call_type="02"
     )
 
-
+    time.sleep(1)
     # Минуты остаются неизменными
     assert get_hrs_outgoing_minutes(abonent_id) == outgoing_minutes
     updated_minutes = get_hrs_incoming_minutes(abonent_id)
@@ -97,7 +98,7 @@ def test_tariff_limit_exceeded(hrs_test_abonent):
         duration=timedelta(minutes=20),
         call_type="01"
     )
-
+    time.sleep(1)
     updated_minutes = get_hrs_outgoing_minutes(abonent_id)
     assert updated_minutes == 0, f"Ожидалось 0, получено {updated_minutes}"
 

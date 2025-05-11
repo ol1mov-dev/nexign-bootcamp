@@ -16,8 +16,8 @@ def test_abonent():
         abonent_id=abonent_id,
         first_name="Тест",
         name="Тестович",
-        msisdn="+79000000000",
-        last_name="Тестовый",
+        msisdn="+79000000001",
+        middle_name="Тестовый",
         balance=100.0
     )
 

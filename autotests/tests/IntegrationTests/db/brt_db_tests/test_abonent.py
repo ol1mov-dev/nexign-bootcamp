@@ -16,8 +16,8 @@ def test_abonent():
         abonent_id=abonent_id,
         first_name="Тест",
         name="Тестович",
-        msisdn="+79000000000",
-        last_name="Тестовый",
+        msisdn="+79000000001",
+        middle_name="Тестовый",
         balance=100.0
     )
 
@@ -39,6 +39,6 @@ def test_brt_abonent_creation(test_abonent):
             cur.execute("SELECT * FROM abonents WHERE id = %s", (abonent_id,))
             result = cur.fetchone()
             assert result[1] == "Тест"  # first_name
-            assert result[4] == "+79000000000"  # msisdn
+            assert result[4] == "+79000000001"  # msisdn
     finally:
         conn.close()

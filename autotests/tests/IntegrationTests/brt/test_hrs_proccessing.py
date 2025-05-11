@@ -64,7 +64,7 @@ def test_hrs_processing():
                 first_name="Тест",
                 name="Тестович",
                 msisdn=f"+{abonent_id}",
-                last_name="Тестовый",
+                middle_name="Тестовый",
                 balance=200.0
             )
 
@@ -111,7 +111,7 @@ def test_negative_bills_hrs_processing():
                 first_name="Тест",
                 name="Тестович",
                 msisdn=f"+{abonent_id}",
-                last_name="Тестовый",
+                middle_name="Тестовый",
                 balance=200.0
             )
 
@@ -128,7 +128,7 @@ def test_negative_bills_hrs_processing():
         abonent_id = bill["abonentId"]
         start_balance = get_brt_balance(abonent_id)
         send_bill_message(bill)
-        time.sleep(1)
+        time.sleep(2)
         expected_balance = start_balance - bill["totalPrice"]
 
         # Получаем текущий баланс

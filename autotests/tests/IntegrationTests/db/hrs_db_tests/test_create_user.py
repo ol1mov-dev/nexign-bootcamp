@@ -4,9 +4,9 @@ from utils.hrs_interaction import *
 
 @pytest.fixture
 def create_test_abonent():
-    abonent_id = 999999
+    abonent_id = 999998
     user_id = 123
-    tariff_id = 1
+    tariff_id = 11
     initial_in = 10
     initial_out = 20
 
