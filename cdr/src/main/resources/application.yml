@@ -30,3 +30,7 @@ rabbitmq:
   cdr-created-queue: cdr.queue
   cdr-created-routing-key: cdr
 
+cdr:
+  max-cdr-amount-before-sending-to-queue: 10
+  amount-of-cdr-generations-at-one-time: 1000
+

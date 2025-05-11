@@ -25,9 +25,4 @@ public class AbonentController {
     public ResponseEntity<Long> create(@RequestBody  AbonentDto abonentDto) {
        return abonentService.create(abonentDto);
     }
-
-    @PostMapping("/{id}")
-    public ResponseEntity<AbonentDto> read(@PathVariable Long id) {
-        return abonentService.read(id);
-    }
 }

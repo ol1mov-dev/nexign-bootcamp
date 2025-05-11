@@ -9,6 +9,7 @@ import com.projects.cdr.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -17,13 +18,32 @@ import java.util.*;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class CdrService {
     private final UserRepository userRepository;
     private final ThreadPoolTaskExecutor cdrTaskExecutor;
     private final CdrRepository cdrRepository;
     private final RabbitTemplate rabbitTemplate;
     private final CdrMapper cdrMapper;
+
+    @Value(value = "${cdr.max-cdr-amount-before-sending-to-queue}")
+    private int maxCdrAmountBeforeSendingToQueue;
+
+    @Value(value = "${cdr.amount-of-cdr-generations-at-one-time}")
+    private int amountOfCdrGenerationsAtOneTime;
+
+    public CdrService(
+            UserRepository userRepository,
+            ThreadPoolTaskExecutor cdrTaskExecutor,
+            CdrRepository cdrRepository,
+            RabbitTemplate rabbitTemplate,
+            CdrMapper cdrMapper
+    ){
+        this.userRepository = userRepository;
+        this.cdrTaskExecutor = cdrTaskExecutor;
+        this.cdrRepository = cdrRepository;
+        this.rabbitTemplate = rabbitTemplate;
+        this.cdrMapper = cdrMapper;
+    }
 
     /**
      * Создаем CDR
@@ -34,10 +54,12 @@ public class CdrService {
         List<CdrDto> cdrs = new ArrayList<>();
         LocalDateTime dateTime = LocalDateTime.now().minusYears(1);
 
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < amountOfCdrGenerationsAtOneTime; i++) {
             dateTime = dateTime.plusHours(3);
 
-            LocalDateTime startTime = dateTime.plusHours(4);
+            LocalDateTime startTime = dateTime
+                    .plusHours(new Random().nextInt(24));
+
             LocalDateTime endTime = startTime
                     .plusMinutes(new Random().nextInt(60))
                     .plusSeconds(new Random().nextInt(60));
@@ -62,7 +84,7 @@ public class CdrService {
                 }
                 log.info("Generated CDR: {}", cdrs.get(0).toString());
 
-                if (cdrs.size() == 1){
+                if (cdrs.size() == maxCdrAmountBeforeSendingToQueue){
                     sendCdrsQueue(cdrs);
                     cdrs.clear();
                 }
