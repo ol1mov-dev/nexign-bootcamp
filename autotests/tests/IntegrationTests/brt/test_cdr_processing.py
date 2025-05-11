@@ -69,7 +69,7 @@ def test_cdr_processing_1(json_file: str = cdr_path_1):
             abonent_id = generate_abonent_id(msisdn)
             now = datetime.now()
             user_id = abonent_id
-            tariff_id = 1
+            tariff_id = 11
             initial_in = 4
             initial_out = 4
 
@@ -133,7 +133,7 @@ def test_cdr_processing_2(json_file: str = cdr_path_2):
             abonent_id = generate_abonent_id(msisdn)
             now = datetime.now()
             user_id = abonent_id
-            tariff_id = 1
+            tariff_id = 11
             initial_in = 4
             initial_out = 4
 

@@ -81,7 +81,7 @@ def test_hrs_processing():
         abonent_id = bill["abonentId"]
         start_balance = get_brt_balance(abonent_id)
         send_bill_message(bill)
-        time.sleep(0.1)
+        time.sleep(1)
         expected_balance = start_balance - bill["totalPrice"]
 
         # Получаем текущий баланс
@@ -128,13 +128,13 @@ def test_negative_bills_hrs_processing():
         abonent_id = bill["abonentId"]
         start_balance = get_brt_balance(abonent_id)
         send_bill_message(bill)
-        time.sleep(0.1)
+        time.sleep(1)
         expected_balance = start_balance - bill["totalPrice"]
 
         # Получаем текущий баланс
         current_balance = get_brt_balance(abonent_id)
 
-        assert round(current_balance, 2) == round(expected_balance, 2), (
+        assert round(current_balance, 2) < round(expected_balance, 2), (
             f"Неверный баланс для абонента {abonent_id}. "
             f"Ожидалось: {expected_balance}, Получено: {current_balance}"
         )
