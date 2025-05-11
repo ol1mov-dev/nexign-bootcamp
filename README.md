@@ -19,3 +19,6 @@
 <h2>HRS</h2>
 <p>Сервис HRS имеет один /api/abonent/create - подключить тариф к абоненту</p>
 
+
+<h2> Отчет по тестированию </h2>
+https://docs.google.com/document/d/1MQzoKOgutOlNawWUD4Ko00nUWXyhnz-fYibV7qfDHsI/edit?tab=t.0
