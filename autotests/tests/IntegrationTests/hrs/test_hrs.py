@@ -98,7 +98,7 @@ def test_tariff_limit_exceeded(hrs_test_abonent):
         duration=timedelta(minutes=20),
         call_type="01"
     )
-    time.sleep(0.1)
+    time.sleep(1)
     updated_minutes = get_hrs_outgoing_minutes(abonent_id)
     assert updated_minutes == 0, f"Ожидалось 0, получено {updated_minutes}"
 
