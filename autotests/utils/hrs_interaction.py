@@ -16,7 +16,7 @@ def get_hrs_db_connection():
         raise
 
 
-def delete_abonent(abonent_id):
+def delete_hrs_abonent(abonent_id):
     """Удаляет абонента и связанный баланс (если существуют)"""
     conn = get_hrs_db_connection()
     try:
@@ -40,7 +40,7 @@ def delete_abonent(abonent_id):
         conn.close()
 
 
-def create_abonent(abonent_id, user_id, tariff_id, initial_in_minutes=0, initial_out_minutes=0):
+def create_hrs_abonent(abonent_id, user_id, tariff_id, initial_in_minutes=0, initial_out_minutes=0):
     """Создает нового абонента с балансом и возвращает ID абонента"""
     conn = get_hrs_db_connection()
     try:
@@ -72,30 +72,127 @@ def create_abonent(abonent_id, user_id, tariff_id, initial_in_minutes=0, initial
     finally:
         conn.close()
 
+
 def set_hrs_outgoing_minutes(abonent_id, minutes):
     """Обновляет исходящие минуты в HRS"""
     conn = get_hrs_db_connection()
     try:
         with conn.cursor() as cur:
+            # Получаем balance_id из таблицы abonents
+            cur.execute(
+                "SELECT balance_id FROM abonents WHERE id = %s",
+                (abonent_id,)
+            )
+            balance_id = cur.fetchone()[0]  # Получаем настоящий ID баланса
+
+            # Обновляем минуты в таблице balances
             cur.execute(
                 "UPDATE balances SET amount_of_minutes_for_outcoming_call = %s WHERE id = %s",
-                (minutes, abonent_id)
+                (minutes, balance_id)  # Используем balance_id вместо abonent_id
             )
             conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise RuntimeError(f"Ошибка обновления минут: {str(e)}")
     finally:
         conn.close()
 
 
 def get_hrs_outgoing_minutes(abonent_id):
-    """Возвращает минуты как целое число"""
+    """Возвращает исходящие минуты из баланса абонента"""
+    conn = get_hrs_db_connection()
+    try:
+        with conn.cursor() as cur:
+            # Получаем ID баланса из таблицы абонентов
+            cur.execute(
+                "SELECT balance_id FROM abonents WHERE id = %s",
+                (abonent_id,)
+            )
+            balance_id_row = cur.fetchone()
+
+            if not balance_id_row:
+                raise ValueError(f"Абонент {abonent_id} не найден")
+
+            balance_id = balance_id_row[0]
+
+            # Получаем минуты из таблицы балансов
+            cur.execute(
+                "SELECT amount_of_minutes_for_outcoming_call FROM balances WHERE id = %s",
+                (balance_id,)
+            )
+            result = cur.fetchone()
+
+            if result:
+                return result[0]
+            else:
+                raise ValueError(f"Баланс для абонента {abonent_id} не найден")
+    finally:
+        conn.close()
+
+
+def get_hrs_incoming_minutes(abonent_id):
+    """Возвращает исходящие минуты из баланса абонента"""
+    conn = get_hrs_db_connection()
+    try:
+        with conn.cursor() as cur:
+            # Получаем ID баланса из таблицы абонентов
+            cur.execute(
+                "SELECT balance_id FROM abonents WHERE id = %s",
+                (abonent_id,)
+            )
+            balance_id_row = cur.fetchone()
+
+            if not balance_id_row:
+                raise ValueError(f"Абонент {abonent_id} не найден")
+
+            balance_id = balance_id_row[0]
+
+            # Получаем минуты из таблицы балансов
+            cur.execute(
+                "SELECT amount_of_minutes_for_incoming_call FROM balances WHERE id = %s",
+                (balance_id,)
+            )
+            result = cur.fetchone()
+
+            if result:
+                return result[0]
+            else:
+                raise ValueError(f"Баланс для абонента {abonent_id} не найден")
+    finally:
+        conn.close()
+
+
+
+def get_tariff_cost_details(abonent_id):
+    """Возвращает данные о стоимости звонков для тарифа абонента."""
+    if not isinstance(abonent_id, int):
+        raise ValueError("abonent_id must be an integer")
+
     conn = get_hrs_db_connection()
     try:
         with conn.cursor() as cur:
             cur.execute(
-                "SELECT amount_of_minutes_for_outcoming_call FROM balances WHERE id = %s",
+                """
+                SELECT 
+                    t.price,
+                    l.price_per_additional_minute_outcoming,
+                    l.price_per_additional_minute_incoming
+                FROM abonents a
+                JOIN tariff_parameters t ON a.tariff_id = t.id
+                JOIN limits l ON t.limit_id = l.id
+                WHERE a.id = %s
+                """,
                 (abonent_id,)
             )
-            return cur.fetchone()[0]
+            result = cur.fetchone()
+            if result:
+                return {
+                    'tariff_price': float(result[0]),
+                    'price_per_additional_minute_outcoming': float(result[1]),
+                    'price_per_additional_minute_incoming': float(result[2])
+                }
+            return None
+    except psycopg2.Error as e:
+        raise
     finally:
         conn.close()
-
