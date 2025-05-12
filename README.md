@@ -40,3 +40,6 @@
 <code> docker-compose up -d --build </code><br>
 <code> docker-compose down -v </code>
 
+
+<h2> Отчет по тестированию </h2>
+https://docs.google.com/document/d/1MQzoKOgutOlNawWUD4Ko00nUWXyhnz-fYibV7qfDHsI/edit?tab=t.0
