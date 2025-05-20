@@ -13,9 +13,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import java.math.BigDecimal;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -32,7 +30,7 @@ class AbonentServiceTest {
     @Test
     @DisplayName("Создание абонента должно возвращать ID")
     void createAbonent_shouldReturnAbonentId() {
-        // Подготовка данных
+        // Подготовка данных: создаем DTO абонента, который будет передан в сервис
         AbonentDto abonentDto = AbonentDto
                 .builder()
                 .firstName("A")
@@ -42,30 +40,31 @@ class AbonentServiceTest {
                 .balance(BigDecimal.valueOf(100))
                 .build();
 
+        // Создаем объект абонента, который должен вернуться из заглушки репозитория после сохранения
         Abonent savedAbonent = Abonent.builder()
-                .id(1L)
+                .id(1L) // Репозиторий вернет абонента с ID = 1
                 .firstName(abonentDto.firstName())
                 .name(abonentDto.name())
-                .lastName(abonentDto.lastName())
+                .middleName(abonentDto.lastName()) // Здесь предполагается, что lastName = отчество
                 .msisdn(abonentDto.msisdn())
                 .balance(abonentDto.balance())
                 .build();
 
-        // Заглушка поведения репозитория
+        // Заглушка поведения репозитория: возвращаем сохраненного абонента
         when(abonentRepository.save(Mockito.any(Abonent.class))).thenReturn(savedAbonent);
 
-
-        // Вызов метода
+        // Вызов метода create() в сервисе
         ResponseEntity<Long> response = abonentService.create(abonentDto);
 
-        // Проверка
+        // Проверка ответа: статус должен быть 200 OK, тело — ID абонента
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1L, response.getBody());
 
-        // Проверка что сохранение было вызвано
+        // Проверяем, что метод save() был вызван один раз и перехватываем аргумент
         ArgumentCaptor<Abonent> abonentCaptor = ArgumentCaptor.forClass(Abonent.class);
         verify(abonentRepository).save(abonentCaptor.capture());
 
+        // Получаем абонента, переданного в save(), и проверяем его поля
         Abonent abonentSaved = abonentCaptor.getValue();
         assertEquals("+79001234567", abonentSaved.getMsisdn());
         assertEquals(BigDecimal.valueOf(100), abonentSaved.getBalance());

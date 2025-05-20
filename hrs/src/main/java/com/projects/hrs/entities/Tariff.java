@@ -30,6 +30,7 @@ public class Tariff {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Builder.Default
     @OneToMany(mappedBy = "tariff")
     private Set<Abonent> abonents = new HashSet<>();
 
@@ -43,6 +44,7 @@ public class Tariff {
     @JoinColumn(name = "tariff_parameters_id", referencedColumnName = "id")
     private TariffParameter tariffParameters;
 
+    @Builder.Default
     @Column(name = "is_deleted")
     private boolean isDeleted = false;
 }

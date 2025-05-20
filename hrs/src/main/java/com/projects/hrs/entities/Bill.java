@@ -41,6 +41,7 @@ public class Bill {
     @Column(name = "amount_of_minutes")
     private int amountOfMinutes;
 
+    @Builder.Default
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 }

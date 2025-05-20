@@ -50,6 +50,7 @@ public class Abonent{
     @Column(name = "balance", precision = 12, scale = 2, nullable = false)
     private BigDecimal balance;
 
+    @Builder.Default
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 }

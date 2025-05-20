@@ -14,13 +14,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/abonent")
 public class AbonentController {
-
     private final AbonentService abonentService;
 
     public AbonentController(AbonentService abonentService) {
         this.abonentService = abonentService;
     }
 
+    /**
+     * Создаем абонента
+     * @param abonentDto данные об абоненте
+     * @return идентификатор созданного абонента
+     */
     @PostMapping("/create")
     public ResponseEntity<Long> create(@RequestBody  AbonentDto abonentDto) {
        return abonentService.create(abonentDto);

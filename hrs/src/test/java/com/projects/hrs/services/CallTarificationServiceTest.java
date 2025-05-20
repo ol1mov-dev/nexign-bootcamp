@@ -9,6 +9,7 @@ import com.projects.hrs.entities.Limit;
 import com.projects.hrs.entities.Tariff;
 import com.projects.hrs.entities.TariffParameter;
 import com.projects.hrs.repositories.AbonentRepository;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,9 +17,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-
 import java.math.BigDecimal;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -37,20 +36,22 @@ class CallTarificationServiceTest {
     private CallTarificationService callTarificationService;
 
     @Test
+    @DisplayName("Длительность звонка округляется вверх до целых минут")
     void getTotalCallMinutes_shouldCalculateRoundedUpMinutes() {
-        int result = callTarificationService.getTotalCallMinutes("01:02:30");
+        int result = callTarificationService.getTotalCallMinutes("01:02:30"); // 1 час 2 мин 30 сек = 63 минуты
         assertEquals(63, result);
     }
 
     @Test
+    @DisplayName("Списание минут: при нехватке списываются все и создаётся счёт на превышение")
     void subtractMinutesFromBalance_shouldSubtractAndSendBill_whenOutOfMinutes() {
-        // Подготовка
+        // Подготовка абонента с 3 доступными входящими минутами
         Abonent abonent = new Abonent();
         Balance balance = new Balance();
-        // Выставляем количество минут для входящих звонков
         balance.setAmountOfMinutesForIncomingCall(3);
         abonent.setBalance(balance);
 
+        // Тариф с ценой за дополнительные минуты
         Limit limit = new Limit();
         limit.setPricePerAdditionalMinuteIncoming(BigDecimal.valueOf(1.5));
 
@@ -62,13 +63,16 @@ class CallTarificationServiceTest {
         abonent.setTariff(tariff);
         abonent.setId(1L);
 
+        // Мокаем сохранение
         when(abonentRepository.save(Mockito.any(Abonent.class))).thenReturn(abonent);
 
-        // Вызов
+        // Вызов метода: запрашивается 5 минут, доступно только 3
         callTarificationService.subtractMinutesFromBalance(abonent, CallType.INCOMING.getCallType(), 5);
+
+        // Оставшиеся минуты должны обнулиться
         assertEquals(0, abonent.getBalance().getAmountOfMinutesForIncomingCall());
 
-        // Проверка: минуты должны обнулиться и отправлен счет за 3 минуты
+        // Проверка вызова сохранения абонента и отправки счёта через RabbitMQ
         verify(abonentRepository).save(Mockito.any(Abonent.class));
         verify(rabbitTemplate).convertAndSend(
                 Mockito.eq(RabbitMqConfiguration.EXCHANGE_NAME),
@@ -78,14 +82,15 @@ class CallTarificationServiceTest {
     }
 
     @Test
+    @DisplayName("Списание минут: при достаточном остатке просто уменьшается количество минут")
     void subtractMinutesFromBalance_shouldJustSubtract_whenEnoughIncomingMinutes() {
-        // Подготовка
+        // Подготовка абонента с 10 входящими минутами
         Abonent abonent = new Abonent();
         Balance balance = new Balance();
-        // Достаточно входящих минут
         balance.setAmountOfMinutesForIncomingCall(10);
         abonent.setBalance(balance);
 
+        // Настройка тарифа
         Limit limit = new Limit();
         limit.setPricePerAdditionalMinuteIncoming(BigDecimal.valueOf(1.5));
 
@@ -97,17 +102,18 @@ class CallTarificationServiceTest {
         abonent.setTariff(tariff);
         abonent.setId(1L);
 
+        // Мокаем сохранение
         when(abonentRepository.save(Mockito.any(Abonent.class))).thenReturn(abonent);
 
-        // Вызов: используем меньше минут, чем есть
+        // Вызов метода: используем 5 из 10 минут
         callTarificationService.subtractMinutesFromBalance(abonent, CallType.INCOMING.getCallType(), 5);
 
-        // Проверка: минуты должны уменьшиться, счет не отправляется
+        // Проверка: осталось 5 минут
         assertEquals(5, abonent.getBalance().getAmountOfMinutesForIncomingCall());
 
+        // Проверка, что счёт не отправлялся
         verify(abonentRepository).save(Mockito.any(Abonent.class));
         verifyNoInteractions(rabbitTemplate);
     }
-
 }
 

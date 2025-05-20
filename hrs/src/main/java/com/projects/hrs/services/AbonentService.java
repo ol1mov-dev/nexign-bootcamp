@@ -9,23 +9,24 @@ import com.projects.hrs.repositories.TariffRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 
 @Slf4j
 @Service
 public class AbonentService {
-
     private final AbonentRepository abonentRepository;
     private final BalanceService balanceService;
     private final TariffRepository tariffRepository;
 
-    public AbonentService(AbonentRepository abonentRepository, BalanceService balanceService, TariffRepository tariffRepository) {
+    public AbonentService(
+            AbonentRepository abonentRepository,
+            BalanceService balanceService,
+            TariffRepository tariffRepository
+    ){
         this.abonentRepository = abonentRepository;
         this.balanceService = balanceService;
         this.tariffRepository = tariffRepository;
     }
-
 
     public ResponseEntity<String> create(CreateAbonentHrsRequest createAbonentRequest) {
         Balance balance = balanceService.create(createAbonentRequest.tariffId());

@@ -49,9 +49,11 @@ public class Abonent {
     @OneToMany(mappedBy = "abonent", fetch = FetchType.LAZY)
     private Set<Bill> bills;
 
+    @Builder.Default
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Builder.Default
     @Column(name = "is_deleted")
     private Boolean isDeleted = false;
 }

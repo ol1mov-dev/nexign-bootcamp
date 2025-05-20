@@ -12,9 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -62,7 +60,7 @@ class HrsServiceTest {
     @Test
     void calculate_shouldSubtractMinutes_whenPaymentByPeriod() {
         // Подготовка
-        CallQueueDto callDto = new CallQueueDto(2L, "00:03:30", CallType.INCOMING.getCallType());
+        CallQueueDto callDto = new CallQueueDto(2L, CallType.INCOMING.getCallType(), "00:03:30");
         Abonent abonent = new Abonent();
         abonent.setId(2L);
 
@@ -86,7 +84,7 @@ class HrsServiceTest {
     @Test
     void calculate_shouldThrowException_whenAbonentNotFound() {
         // Подготовка
-        CallQueueDto callDto = new CallQueueDto(999L, "00:01:00", CallType.INCOMING.getCallType());
+        CallQueueDto callDto = new CallQueueDto(999L, CallType.INCOMING.getCallType(), "00:01:00");
 
         when(callTarificationService.getTotalCallMinutes("00:01:00")).thenReturn(1);
         when(abonentRepository.findById(999L)).thenReturn(Optional.empty());

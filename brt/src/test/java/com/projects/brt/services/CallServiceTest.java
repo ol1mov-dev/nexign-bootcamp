@@ -7,7 +7,6 @@ import com.projects.brt.entities.Abonent;
 import com.projects.brt.entities.Call;
 import com.projects.brt.repositories.AbonentRepository;
 import com.projects.brt.repositories.CallRepository;
-
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -44,11 +43,11 @@ class CallServiceTest {
     @Mock
     private RabbitTemplate rabbitTemplate;
 
+    @Mock
+    private RabbitMqConfiguration rabbitMqConfiguration;
+
     @InjectMocks
     private CallService callService;
-
-    @Captor
-    private ArgumentCaptor<Call> callCaptor;
 
     @Captor
     private ArgumentCaptor<CallQueueDto> queueDtoCaptor;
@@ -115,8 +114,8 @@ class CallServiceTest {
         ArgumentCaptor<CallQueueDto> queueCaptor = ArgumentCaptor.forClass(CallQueueDto.class);
 
         verify(rabbitTemplate, times(2)).convertAndSend(
-                eq(RabbitMqConfiguration.EXCHANGE_NAME),
-                eq(RabbitMqConfiguration.CALL_CREATED_ROUTING_KEY),
+                eq(rabbitMqConfiguration.EXCHANGE_NAME),
+                eq(rabbitMqConfiguration.CALL_CREATED_ROUTING_KEY),
                 queueCaptor.capture()
         );
 
@@ -152,8 +151,8 @@ class CallServiceTest {
         // Проверка: только одно сообщение отправлено в очередь
         ArgumentCaptor<CallQueueDto> queueCaptor = ArgumentCaptor.forClass(CallQueueDto.class);
         verify(rabbitTemplate, times(1)).convertAndSend(
-                eq(RabbitMqConfiguration.EXCHANGE_NAME),
-                eq(RabbitMqConfiguration.CALL_CREATED_ROUTING_KEY),
+                eq(rabbitMqConfiguration.EXCHANGE_NAME),
+                eq(rabbitMqConfiguration.CALL_CREATED_ROUTING_KEY),
                 queueCaptor.capture()
         );
 
@@ -187,8 +186,8 @@ class CallServiceTest {
         // Проверка: одно сообщение отправлено в очередь
         ArgumentCaptor<CallQueueDto> queueCaptor = ArgumentCaptor.forClass(CallQueueDto.class);
         verify(rabbitTemplate, times(1)).convertAndSend(
-                eq(RabbitMqConfiguration.EXCHANGE_NAME),
-                eq(RabbitMqConfiguration.CALL_CREATED_ROUTING_KEY),
+                eq(rabbitMqConfiguration.EXCHANGE_NAME),
+                eq(rabbitMqConfiguration.CALL_CREATED_ROUTING_KEY),
                 queueCaptor.capture()
         );
 
@@ -328,8 +327,8 @@ class CallServiceTest {
 
         // Проверка отправки сообщения в очередь
         verify(rabbitTemplate).convertAndSend(
-                eq(RabbitMqConfiguration.EXCHANGE_NAME),
-                eq(RabbitMqConfiguration.CALL_CREATED_ROUTING_KEY),
+                eq(rabbitMqConfiguration.EXCHANGE_NAME),
+                eq(rabbitMqConfiguration.CALL_CREATED_ROUTING_KEY),
                 queueDtoCaptor.capture()
         );
 
@@ -371,8 +370,8 @@ class CallServiceTest {
 
         // Проверка отправки сообщения в очередь
         verify(rabbitTemplate).convertAndSend(
-                eq(RabbitMqConfiguration.EXCHANGE_NAME),
-                eq(RabbitMqConfiguration.CALL_CREATED_ROUTING_KEY),
+                eq(rabbitMqConfiguration.EXCHANGE_NAME),
+                eq(rabbitMqConfiguration.CALL_CREATED_ROUTING_KEY),
                 queueDtoCaptor.capture()
         );
 

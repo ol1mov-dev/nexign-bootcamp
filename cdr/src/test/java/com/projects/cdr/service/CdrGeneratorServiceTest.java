@@ -1,24 +1,19 @@
 package com.projects.cdr.service;
 
 import com.projects.cdr.commons.CallType;
-import com.projects.cdr.configuration.RabbitMqConfiguration;
+import com.projects.cdr.configurations.RabbitMqConfiguration;
 import com.projects.cdr.dto.CdrDto;
 import com.projects.cdr.entities.User;
-import com.projects.cdr.mapper.CdrMapper;
-import com.projects.cdr.repository.CdrRepository;
-import com.projects.cdr.repository.UserRepository;
-
+import com.projects.cdr.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -29,31 +24,22 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class CdrServiceTest {
+public class CdrGeneratorServiceTest {
 
     @Mock
     private UserRepository userRepository;
 
     @Mock
-    private ThreadPoolTaskExecutor cdrTaskExecutor;
+    private RabbitMqConfiguration rabbitMqConfiguration;
 
     @Mock
-    private CdrRepository cdrRepository;
+    private ThreadPoolTaskExecutor cdrTaskExecutor;
 
     @Mock
     private RabbitTemplate rabbitTemplate;
 
-    @Mock
-    private CdrMapper cdrMapper;
-
     @InjectMocks
-    private CdrService cdrService;
-
-    @Captor
-    private ArgumentCaptor<Runnable> runnableCaptor;
-
-    @Captor
-    private ArgumentCaptor<List<CdrDto>> cdrListCaptor;
+    private CdrGeneratorService cdrGeneratorService;
 
     private User testUser;
 
@@ -64,46 +50,42 @@ public class CdrServiceTest {
     }
 
     @Test
+    @DisplayName("Проверка генерации CDR: должно запускаться 11 потоков")
     void testGenerate() throws InterruptedException {
-        // Given
-        when(userRepository.findRandomUser()).thenReturn(testUser);
-        when(cdrTaskExecutor.submit(any(Runnable.class))).thenAnswer(invocation -> {
-            Runnable runnable = invocation.getArgument(0);
-            runnable.run();
-            return null;
-        });
+        // Выполняем тестируемый метод
+        cdrGeneratorService.generate();
 
-        // When
-        cdrService.generate();
-
-        // Then
+        // Проверяем, что submit был вызван 11 раз
         verify(cdrTaskExecutor, times(11)).submit(any(Runnable.class));
     }
 
     @Test
+    @DisplayName("Случайный тип звонка должен быть входящим или исходящим")
     void testGetRandomCallType() {
-        // When
-        String callType = cdrService.getRandomCallType();
+        // Получаем случайный тип звонка
+        String callType = cdrGeneratorService.getRandomCallType();
 
-        // Then
+        // Проверяем равно ли одному из 2-х значений
         assertTrue(callType.equals(CallType.INCOMING.callType) || callType.equals(CallType.OUTGOING.callType));
     }
 
     @Test
+    @DisplayName("Случайный абонент должен быть возвращён")
     void testGetRandomRecieverWithOurSubscriber() {
-        // Given
+        // When
         when(userRepository.findRandomUser()).thenReturn(testUser);
 
-        // When
-        String receiver = cdrService.getRandomReciever();
+        // Получаем случайного пользователя к которому идет звонок
+        String receiver = cdrGeneratorService.getRandomReciever();
 
-        // Then
+        // Проверяем не пустой ли наш пользователь системы
         assertNotNull(receiver);
     }
 
     @Test
+    @DisplayName("CDR-дто должно быть отправлено в очередь RabbitMQ")
     void testSendCdrsQueue() {
-        // Given
+        // Список с cdr
         List<CdrDto> cdrs = List.of(
                 CdrDto.builder()
                         .callType(CallType.INCOMING.callType)
@@ -114,31 +96,31 @@ public class CdrServiceTest {
                         .build()
         );
 
-        // When
-        cdrService.sendCdrsQueue(cdrs);
+        // Отправляем в очередь все наши CDR
+        cdrGeneratorService.sendCdrsQueue(cdrs);
 
-        // Then
+        // Проверяем отправились ли сгенерированные CDR в брокер сообщений
         verify(rabbitTemplate).convertAndSend(
-                eq(RabbitMqConfiguration.EXCHANGE_NAME),
-                eq(RabbitMqConfiguration.CDR_CREATED_ROUTING_KEY),
+                eq(rabbitMqConfiguration.EXCHANGE_NAME),
+                eq(rabbitMqConfiguration.CDR_CREATED_ROUTING_KEY),
                 eq(cdrs)
         );
     }
 
     @Test
+    @DisplayName("Разделение звонка, пересекающего полночь, должно возвращать два CDR")
     void splitCallIntervalAtMidnight_shouldSplitCallCrossingMidnight() {
-        // Given
+        // Тестовые значения
         LocalDateTime startCall = LocalDateTime.of(2025, 5, 10, 23, 50);
         LocalDateTime endCall = LocalDateTime.of(2025, 5, 11, 0, 10);
+        when(userRepository.findRandomUser()).thenReturn(testUser);
 
-        User mockUser = new User();
-        mockUser.setNumber("79001234567");
-        when(userRepository.findRandomUser()).thenReturn(mockUser);
+        // При вызове метода splitCallIntervalAtMidnight должны быть возвращены 2 CDR.
+        // Один до полуночи, другой после полуночи
+        Map<String, CdrDto> result = cdrGeneratorService.splitCallIntervalAtMidnight(startCall, endCall);
 
-        // When
-        Map<String, CdrDto> result = cdrService.splitCallIntervalAtMidnight(startCall, endCall);
-
-        // Then
+        // Проверяем не пустой ли результат метода splitCallIntervalAtMidnight()
+        // и существуют ли две CDR
         assertNotNull(result);
         assertTrue(result.containsKey("firstCdr"));
         assertTrue(result.containsKey("secondCdr"));
@@ -146,24 +128,25 @@ public class CdrServiceTest {
         CdrDto first = result.get("firstCdr");
         CdrDto second = result.get("secondCdr");
 
+        // Проверяем правильно ли разделен интервал времени
         assertEquals("2025-05-10T23:50:00", first.startTime());
         assertEquals("2025-05-10T23:59:59", first.endTime());
-
         assertEquals("2025-05-11T00:00:00", second.startTime());
         assertEquals("2025-05-11T00:10:00", second.endTime());
     }
 
     @Test
+    @DisplayName("Создание CDR-дто по времени и пользователю")
     void testBuildCdrDto() {
-        // Given
+        // Получаем случайного пользователя и задаем интервал времени
         when(userRepository.findRandomUser()).thenReturn(testUser);
         LocalDateTime startTime = LocalDateTime.of(2023, 1, 1, 12, 0, 0);
         LocalDateTime endTime = LocalDateTime.of(2023, 1, 1, 12, 5, 30);
 
-        // When
-        CdrDto result = cdrService.buildCdrDto(startTime, endTime);
+        // Получаем наш CdrDto
+        CdrDto result = cdrGeneratorService.buildCdrDto(startTime, endTime);
 
-        // Then
+        // Проверяем не пустой ли результат метода buildCdrDto и правильно ли собран CdrDto
         assertNotNull(result);
         assertEquals(startTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), result.startTime());
         assertEquals(endTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), result.endTime());

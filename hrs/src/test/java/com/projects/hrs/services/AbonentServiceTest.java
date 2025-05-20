@@ -15,9 +15,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -40,28 +38,32 @@ class AbonentServiceTest {
     @Test
     @DisplayName("Создание абонента: должен вернуть имя тарифа")
     void createAbonent_shouldReturnTariffName() {
-        // Подготовка данных
+        // Подготовка данных запроса
         Long userId = 1L;
         Long tariffId = 100L;
         String expectedTariffName = "Premium";
 
+        // DTO-запрос на создание абонента
         CreateAbonentHrsRequest request = new CreateAbonentHrsRequest(userId, tariffId);
-        Balance balance = new Balance(); // Подставь валидный объект, если надо
+
+        // Баланс и тариф, которые будут возвращены из стабов
+        Balance balance = new Balance(); // Здесь можно подставить конкретные значения при необходимости
         Tariff tariff = new Tariff();
         tariff.setId(tariffId);
         tariff.setName(expectedTariffName);
 
-        // Стаббинги
-        when(balanceService.create(tariffId)).thenReturn(balance);
-        when(tariffRepository.findById(tariffId)).thenReturn(Optional.of(tariff));
+        // Заглушки сервисов
+        when(balanceService.create(tariffId)).thenReturn(balance); // Сервис создания баланса
+        when(tariffRepository.findById(tariffId)).thenReturn(Optional.of(tariff)); // Поиск тарифа
 
-        // Вызов
+        // Вызов метода создания абонента
         ResponseEntity<String> response = abonentService.create(request);
 
-        // Проверка
+        // Проверка, что возвращен статус 200 OK и имя тарифа соответствует ожидаемому
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(expectedTariffName, response.getBody());
 
+        // Проверка, что метод сохранения абонента был вызван
         verify(abonentRepository).save(Mockito.any(Abonent.class));
     }
 }

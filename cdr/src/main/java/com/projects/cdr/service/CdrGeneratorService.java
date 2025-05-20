@@ -1,12 +1,11 @@
 package com.projects.cdr.service;
 
 import com.projects.cdr.commons.CallType;
-import com.projects.cdr.configuration.RabbitMqConfiguration;
+import com.projects.cdr.configurations.RabbitMqConfiguration;
 import com.projects.cdr.dto.CdrDto;
 import com.projects.cdr.mapper.CdrMapper;
-import com.projects.cdr.repository.CdrRepository;
-import com.projects.cdr.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import com.projects.cdr.repositories.CdrRepository;
+import com.projects.cdr.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,39 +17,43 @@ import java.util.*;
 
 @Slf4j
 @Service
-public class CdrService {
+public class CdrGeneratorService {
     private final UserRepository userRepository;
     private final ThreadPoolTaskExecutor cdrTaskExecutor;
     private final CdrRepository cdrRepository;
     private final RabbitTemplate rabbitTemplate;
     private final CdrMapper cdrMapper;
+    private final RabbitMqConfiguration rabbitMqConfiguration;
+    private final Random random = new Random();
 
+    // Количество CDR, которые должны сгенерироваться перед отправкой в брокер сообщений
     @Value(value = "${cdr.max-cdr-amount-before-sending-to-queue}")
     private int maxCdrAmountBeforeSendingToQueue;
 
+    // Количество CDR, которые должны сгенерироваться за раз при вызове метода generate()
     @Value(value = "${cdr.amount-of-cdr-generations-at-one-time}")
     private int amountOfCdrGenerationsAtOneTime;
 
-    public CdrService(
+    public CdrGeneratorService(
             UserRepository userRepository,
             ThreadPoolTaskExecutor cdrTaskExecutor,
             CdrRepository cdrRepository,
             RabbitTemplate rabbitTemplate,
-            CdrMapper cdrMapper
+            CdrMapper cdrMapper,
+            RabbitMqConfiguration rabbitMqConfiguration
     ){
         this.userRepository = userRepository;
         this.cdrTaskExecutor = cdrTaskExecutor;
         this.cdrRepository = cdrRepository;
         this.rabbitTemplate = rabbitTemplate;
         this.cdrMapper = cdrMapper;
+        this.rabbitMqConfiguration = rabbitMqConfiguration;
     }
 
     /**
      * Создаем CDR
-     * @throws InterruptedException
      */
     public void generate() throws InterruptedException {
-
         List<CdrDto> cdrs = new ArrayList<>();
         LocalDateTime dateTime = LocalDateTime.now().minusYears(1);
 
@@ -58,14 +61,13 @@ public class CdrService {
             dateTime = dateTime.plusHours(3);
 
             LocalDateTime startTime = dateTime
-                    .plusHours(new Random().nextInt(24));
+                    .plusHours(random.nextInt(24));
 
             LocalDateTime endTime = startTime
-                    .plusMinutes(new Random().nextInt(60))
-                    .plusSeconds(new Random().nextInt(60));
+                    .plusMinutes(random.nextInt(60))
+                    .plusSeconds(random.nextInt(60));
 
             cdrTaskExecutor.submit(() -> {
-
                 // Если даты одинаковые → звонок не пересекает полночь.
                 // Если даты разные → звонок переходит на следующий день.
                 if (!startTime.toLocalDate().equals(endTime.toLocalDate())) {
@@ -97,7 +99,7 @@ public class CdrService {
      * @return тип звонка
      */
     public String getRandomCallType(){
-        return new Random().nextBoolean() ?
+        return random.nextBoolean() ?
                 CallType.INCOMING.callType:
                 CallType.OUTGOING.callType;
     }
@@ -107,12 +109,12 @@ public class CdrService {
      * @return номер абонента к которому осуществляется/принимается звонок.
      */
     public String getRandomReciever(){
-        boolean isOurSubscriber = new Random().nextBoolean();
+        boolean isOurSubscriber = random.nextBoolean();
 
         if(isOurSubscriber){
-            return  userRepository.findRandomUser().getNumber();
+            return userRepository.findRandomUser().getNumber();
         }
-        return  "+7" + new Random().nextLong(9000000000L, 9999999999L);
+        return  "+7" + random.nextLong(9000000000L, 9999999999L);
     }
 
     /**
@@ -121,8 +123,8 @@ public class CdrService {
      */
     public void sendCdrsQueue(List<CdrDto> cdrs) {
         rabbitTemplate.convertAndSend(
-                RabbitMqConfiguration.EXCHANGE_NAME,
-                RabbitMqConfiguration.CDR_CREATED_ROUTING_KEY,
+                rabbitMqConfiguration.EXCHANGE_NAME,
+                rabbitMqConfiguration.CDR_CREATED_ROUTING_KEY,
                 cdrs
         );
     }
@@ -137,7 +139,6 @@ public class CdrService {
      * @return два Cdr, если есть пересечение в 00:00:00, в противном случае, только один CDR
      */
     public Map<String, CdrDto> splitCallIntervalAtMidnight(LocalDateTime startCall, LocalDateTime endCall){
-
         LocalDateTime midnight = startCall.toLocalDate().atTime(23, 59, 59);
         LocalDateTime nextDayStart = endCall.toLocalDate().atTime(0, 0, 0);
 
@@ -151,7 +152,7 @@ public class CdrService {
      * Создаем Cdr
      * @param startTime начало разговора
      * @param endTime конец разговора
-     * @return
+     * @return CdrDto
      */
     public CdrDto buildCdrDto(
             LocalDateTime startTime,

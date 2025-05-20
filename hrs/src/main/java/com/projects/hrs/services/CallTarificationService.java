@@ -6,25 +6,22 @@ import com.projects.hrs.dto.BillDto;
 import com.projects.hrs.entities.Abonent;
 import com.projects.hrs.entities.Limit;
 import com.projects.hrs.repositories.AbonentRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Optional;
 
 @Slf4j
 @Service
 public class CallTarificationService {
-
     private final AbonentRepository abonentRepository;
     private final RabbitTemplate rabbitTemplate;
 
-    public CallTarificationService(AbonentRepository abonentRepository, RabbitTemplate rabbitTemplate) {
+    public CallTarificationService(
+            AbonentRepository abonentRepository,
+            RabbitTemplate rabbitTemplate
+    ){
         this.abonentRepository = abonentRepository;
         this.rabbitTemplate = rabbitTemplate;
     }
@@ -41,7 +38,6 @@ public class CallTarificationService {
         if (time.getSecond() > 0) {
             totalMinutes += 1;
         }
-
         return totalMinutes;
     }
 
@@ -67,7 +63,6 @@ public class CallTarificationService {
     }
 
     public void subtractMinutesFromBalance(Abonent abonent, String callType, int usedMinutes) {
-
         int balance = callType.equals(CallType.INCOMING.getCallType()) ?
                 abonent.getBalance().getAmountOfMinutesForIncomingCall() :
                 abonent.getBalance().getAmountOfMinutesForOutcomingCall();

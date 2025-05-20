@@ -8,8 +8,8 @@ import com.projects.brt.entities.Call;
 import com.projects.brt.repositories.AbonentRepository;
 import com.projects.brt.repositories.CallRepository;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import java.time.Duration;
@@ -22,19 +22,30 @@ import java.util.List;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class CallService {
-
     private final AbonentRepository abonentRepository;
     private final CallRepository callRepository;
     private final RabbitTemplate rabbitTemplate;
+    private final RabbitMqConfiguration rabbitMqConfiguration;
+
+    public CallService(
+            AbonentRepository abonentRepository,
+            CallRepository callRepository,
+            RabbitTemplate rabbitTemplate,
+            RabbitMqConfiguration rabbitMqConfiguration
+    ){
+        this.abonentRepository = abonentRepository;
+        this.callRepository = callRepository;
+        this.rabbitTemplate = rabbitTemplate;
+        this.rabbitMqConfiguration = rabbitMqConfiguration;
+    }
 
     /**
      * Сохраняем
      * @param cdrs данные о звонках
      */
-    public void saveCall(List<CdrDto> cdrs) {
-
+    @RabbitListener(queues = "${rabbitmq.cdrs-created-queue}")
+    public void save(List<CdrDto> cdrs) {
         cdrs.forEach(cdr -> {
             boolean isFirstMsisdnOurClient = isOurClient(cdr.firstMsisdn());
             boolean isSecondMsisdnOurClient = isOurClient(cdr.secondMsisdn());
@@ -51,7 +62,6 @@ public class CallService {
             }
         });
     }
-
 
     /**
      * Рассчитать длительность разговора в формате hh:mm:ss
@@ -141,8 +151,8 @@ public class CallService {
      */
     public void sendCallQueue(Long abonentId, String callType, String callDuration) {
         rabbitTemplate.convertAndSend(
-                RabbitMqConfiguration.EXCHANGE_NAME,
-                RabbitMqConfiguration.CALL_CREATED_ROUTING_KEY,
+                rabbitMqConfiguration.EXCHANGE_NAME,
+                rabbitMqConfiguration.CALL_CREATED_ROUTING_KEY,
                 CallQueueDto
                         .builder()
                         .abonentId(abonentId)

@@ -35,36 +35,40 @@ class BalanceServiceTest {
     @Test
     @DisplayName("Создание баланса: должен использовать лимиты тарифа и сохранить баланс")
     void create_shouldUseTariffLimitsAndSaveBalance() {
-        // Подготовка данных
+        // Подготовка идентификатора тарифа
         Long tariffId = 1L;
 
-        // Мокаем лимиты тарифа
+        // Мокаем лимиты тарифа (например, 150 минут входящих и 300 исходящих)
         Limit limit = new Limit();
         limit.setMinutesForIncome(150);
         limit.setMinutesForOutcome(300);
 
+        // Оборачиваем лимиты в тарифные параметры
         TariffParameter tariffParameter = new TariffParameter();
         tariffParameter.setLimit(limit);
 
+        // Создаем тариф с параметрами
         Tariff tariff = new Tariff();
         tariff.setTariffParameters(tariffParameter);
 
+        // Ожидаемый объект баланса, который должен быть сохранён
         Balance expectedBalance = Balance.builder()
                 .amountOfMinutesForIncomingCall(150)
                 .amountOfMinutesForOutcomingCall(300)
                 .build();
 
-        // Стаббинги
+        // Стаббинги: находим тариф и сохраняем баланс
         when(tariffRepository.findById(tariffId)).thenReturn(Optional.of(tariff));
         when(balanceRepository.save(Mockito.any(Balance.class))).thenReturn(expectedBalance);
 
-        // Вызов
+        // Вызов метода создания баланса по тарифу
         Balance result = balanceService.create(tariffId);
 
-        // Проверка
+        // Проверка, что минуты из лимита корректно проставлены в баланс
         assertEquals(expectedBalance.getAmountOfMinutesForIncomingCall(), result.getAmountOfMinutesForIncomingCall());
         assertEquals(expectedBalance.getAmountOfMinutesForOutcomingCall(), result.getAmountOfMinutesForOutcomingCall());
 
+        // Проверка, что были вызваны нужные методы репозиториев
         verify(tariffRepository).findById(tariffId);
         verify(balanceRepository).save(Mockito.any(Balance.class));
     }

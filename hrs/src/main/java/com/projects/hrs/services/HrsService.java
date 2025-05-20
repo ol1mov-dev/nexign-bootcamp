@@ -5,8 +5,6 @@ import com.projects.hrs.dto.CallQueueDto;
 import com.projects.hrs.entities.Abonent;
 import com.projects.hrs.repositories.AbonentRepository;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -16,13 +14,15 @@ public class HrsService {
     private final AbonentRepository abonentRepository;
     private final CallTarificationService callTarificationService;
 
-    public HrsService(AbonentRepository abonentRepository, CallTarificationService callTarificationService) {
+    public HrsService(
+            AbonentRepository abonentRepository,
+            CallTarificationService callTarificationService
+    ){
         this.abonentRepository = abonentRepository;
         this.callTarificationService = callTarificationService;
     }
 
     public void calculate(CallQueueDto callDto) {
-
         int usedMinutes = callTarificationService
                                 .getTotalCallMinutes(callDto.callDuration());
 

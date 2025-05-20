@@ -24,3 +24,10 @@ spring:
 
 server:
   port: 8082
+
+rabbitmq:
+  exchange-name: brt-exchange
+  cdrs-created-queue: cdr.queue
+  call-created-queue: call.queue
+  bill-created-queue: bill.queue
+  call-created-routing-key: call

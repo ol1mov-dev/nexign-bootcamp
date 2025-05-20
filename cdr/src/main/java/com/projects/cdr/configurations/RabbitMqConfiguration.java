@@ -1,4 +1,4 @@
-package com.projects.cdr.configuration;
+package com.projects.cdr.configurations;
 
 
 import org.springframework.amqp.core.Binding;
@@ -6,14 +6,21 @@ import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMqConfiguration {
-    public static String EXCHANGE_NAME = "cdr-exchange";
-    public static String CDR_CREATED_QUEUE = "cdr.queue";
-    public static String CDR_CREATED_ROUTING_KEY = "cdr";
+
+    @Value(value = "${rabbitmq.exchange-name}")
+    public String EXCHANGE_NAME;
+
+    @Value(value = "${rabbitmq.cdr-created-queue}")
+    public String CDR_CREATED_QUEUE;
+
+    @Value(value = "${rabbitmq.cdr-created-routing-key}")
+    public String CDR_CREATED_ROUTING_KEY;
 
     @Bean
     public Jackson2JsonMessageConverter jsonMessageConverter() {

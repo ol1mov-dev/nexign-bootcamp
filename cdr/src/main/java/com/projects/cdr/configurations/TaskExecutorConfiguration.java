@@ -1,4 +1,4 @@
-package com.projects.cdr.configuration;
+package com.projects.cdr.configurations;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

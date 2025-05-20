@@ -15,5 +15,7 @@ import java.util.Map;
 public class ValidationExceptionResponse {
     private String message;
     private Map<String, String> details;
+
+    @Builder.Default
     LocalDateTime timestamp = LocalDateTime.now();
 }

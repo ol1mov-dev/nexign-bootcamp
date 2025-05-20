@@ -29,9 +29,9 @@ public class Balance {
     @OneToOne(mappedBy = "balance")
     private Abonent abonent;
 
-    @NonNull
+    @Column(nullable = false)
     private int amountOfMinutesForIncomingCall;
 
-    @NonNull
+    @Column(nullable = false)
     private int amountOfMinutesForOutcomingCall;
 }
