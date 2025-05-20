@@ -102,7 +102,7 @@ class CallServiceTest {
         List<CdrDto> cdrs = new ArrayList<>();
         cdrs.add(cdrDto);
 
-        callService.saveCall(cdrs);
+        callService.save(cdrs);
 
         ArgumentCaptor<Call> callCaptor = ArgumentCaptor.forClass(Call.class);
         verify(callRepository, times(2)).save(callCaptor.capture());
@@ -138,7 +138,7 @@ class CallServiceTest {
         List<CdrDto> cdrs = List.of(cdrDto);
 
         // Действие
-        callService.saveCall(cdrs);
+        callService.save(cdrs);
 
         // Проверка: должен быть сохранён только один Call
         ArgumentCaptor<Call> callCaptor = ArgumentCaptor.forClass(Call.class);
@@ -173,7 +173,7 @@ class CallServiceTest {
         List<CdrDto> cdrs = List.of(cdrDto);
 
         // Действие
-        callService.saveCall(cdrs);
+        callService.save(cdrs);
 
         // Проверка: сохранён один звонок
         ArgumentCaptor<Call> callCaptor = ArgumentCaptor.forClass(Call.class);
@@ -207,7 +207,7 @@ class CallServiceTest {
         List<CdrDto> cdrs = List.of(cdrDto);
 
         // Действие
-        callService.saveCall(cdrs);
+        callService.save(cdrs);
 
         // Проверка: звонки не сохраняются
         verify(callRepository, never()).save(any());
@@ -231,7 +231,7 @@ class CallServiceTest {
         when(callRepository.save(any(Call.class))).thenReturn(new Call());
 
         // Вызов метода
-        callService.saveCall(Arrays.asList(cdrDto1, cdrDto2));
+        callService.save(Arrays.asList(cdrDto1, cdrDto2));
 
         // Проверки - должно быть 2 вызова сохранения (по одному для каждого CdrDto)
         verify(callRepository, times(2)).save(any(Call.class));

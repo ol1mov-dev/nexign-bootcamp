@@ -1,7 +1,7 @@
-package com.projects.brt.exceptions.handler;
+package com.projects.crm.exceptions;
 
-import com.projects.brt.exceptions.responses.BaseExceptionResponse;
-import com.projects.brt.exceptions.responses.ValidationExceptionResponse;
+import com.projects.crm.exceptions.responses.BaseExceptionResponse;
+import com.projects.crm.exceptions.responses.ValidationExceptionResponse;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;

@@ -4,6 +4,7 @@ CREATE TABLE abonents (
           tariff_id BIGINT,
           balance_id BIGINT,
           created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+          next_pay_day TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
           is_deleted BOOLEAN DEFAULT FALSE,
 
           CONSTRAINT fk_abonents_tariff

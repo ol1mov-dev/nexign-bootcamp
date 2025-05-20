@@ -1,5 +1,6 @@
 package com.projects.brt.controllers;
 
+import com.projects.brt.controllers.requests.CreateAbonentRequest;
 import com.projects.brt.dto.AbonentDto;
 import com.projects.brt.services.AbonentService;
 import lombok.extern.slf4j.Slf4j;
@@ -22,11 +23,11 @@ public class AbonentController {
 
     /**
      * Создаем абонента
-     * @param abonentDto данные об абоненте
+     * @param createAbonentRequest данные об абоненте
      * @return идентификатор созданного абонента
      */
     @PostMapping("/create")
-    public ResponseEntity<Long> create(@RequestBody  AbonentDto abonentDto) {
-       return abonentService.create(abonentDto);
+    public ResponseEntity<Long> create(@RequestBody CreateAbonentRequest createAbonentRequest) {
+       return abonentService.create(createAbonentRequest);
     }
 }

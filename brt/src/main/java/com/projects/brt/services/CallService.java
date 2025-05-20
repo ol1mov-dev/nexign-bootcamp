@@ -16,8 +16,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.ChronoField;
 import java.util.List;
 
 @Slf4j
@@ -70,13 +68,6 @@ public class CallService {
      * @return длительность разговора в формате hh:mm:ss
      */
     public LocalTime calculateCallDuration(String start, String end) {
-        DateTimeFormatter formatter = new DateTimeFormatterBuilder()
-                                    .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
-                                    .optionalStart()
-                                    .appendFraction(ChronoField.NANO_OF_SECOND, 1, 9, true)
-                                    .optionalEnd()
-                                    .toFormatter();
-
         LocalDateTime startTime = LocalDateTime.parse(start, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         LocalDateTime endTime = LocalDateTime.parse(end, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 

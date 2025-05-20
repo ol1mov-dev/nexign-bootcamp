@@ -31,7 +31,7 @@ FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 # Копируем JAR из этапа сборки
-COPY --from=build /app/build/libs/*.jar app.jar
+COPY --from=build /build/libs/cdr-0.0.1-SNAPSHOT.jar app.jar
 
 # Проверяем наличие JAR
 RUN if [ ! -s app.jar ]; then echo "JAR file is empty or doesn't exist" && exit 1; fi

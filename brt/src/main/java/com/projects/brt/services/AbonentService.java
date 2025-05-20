@@ -1,6 +1,6 @@
 package com.projects.brt.services;
 
-import com.projects.brt.dto.AbonentDto;
+import com.projects.brt.controllers.requests.CreateAbonentRequest;
 import com.projects.brt.entities.Abonent;
 import com.projects.brt.repositories.AbonentRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -16,16 +16,16 @@ public class AbonentService {
         this.abonentRepository = abonentRepository;
     }
 
-    public ResponseEntity<Long> create(AbonentDto abonentDto) {
+    public ResponseEntity<Long> create(CreateAbonentRequest createAbonentRequest) {
         return ResponseEntity.ok(
                 abonentRepository.save(
                         Abonent
                                 .builder()
-                                .firstName(abonentDto.firstName())
-                                .name(abonentDto.name())
-                                .middleName(abonentDto.lastName())
-                                .msisdn(abonentDto.msisdn())
-                                .balance(abonentDto.balance())
+                                .firstName(createAbonentRequest.firstName())
+                                .name(createAbonentRequest.name())
+                                .middleName(createAbonentRequest.lastName())
+                                .msisdn(createAbonentRequest.msisdn())
+                                .balance(createAbonentRequest.balance())
                                 .build()
                 ).getId()
         );

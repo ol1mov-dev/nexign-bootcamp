@@ -34,3 +34,9 @@ spring:
                   BasicBinder: TRACE
 server:
   port: 8083
+
+rabbitmq:
+  exchange-name: hrs-exchange
+  call-created-queue: call.queue
+  bill-created-queue: bill.queue
+  bill-created-routing-key: bill

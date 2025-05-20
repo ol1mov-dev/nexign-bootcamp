@@ -9,11 +9,4 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 public class HrsController {
-
-    private final HrsService hrsService;
-
-    @RabbitListener(queues = "call.queue")
-    public void calculate(CallQueueDto callDto) {
-        hrsService.calculate(callDto);
-    }
 }

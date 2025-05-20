@@ -32,6 +32,9 @@ class CallTarificationServiceTest {
     @Mock
     private RabbitTemplate rabbitTemplate;
 
+    @Mock
+    private RabbitMqConfiguration rabbitMqConfiguration;
+
     @InjectMocks
     private CallTarificationService callTarificationService;
 
@@ -75,8 +78,8 @@ class CallTarificationServiceTest {
         // Проверка вызова сохранения абонента и отправки счёта через RabbitMQ
         verify(abonentRepository).save(Mockito.any(Abonent.class));
         verify(rabbitTemplate).convertAndSend(
-                Mockito.eq(RabbitMqConfiguration.EXCHANGE_NAME),
-                Mockito.eq(RabbitMqConfiguration.BILL_CREATED_ROUTING_KEY),
+                Mockito.eq(rabbitMqConfiguration.EXCHANGE_NAME),
+                Mockito.eq(rabbitMqConfiguration.BILL_CREATED_ROUTING_KEY),
                 Mockito.any(BillDto.class)
         );
     }

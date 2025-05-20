@@ -6,14 +6,20 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMqConfiguration {
-    public static String EXCHANGE_NAME = "hrs-exchange";
-    public static String BILL_CREATED_QUEUE = "bill.queue";
-    public static String BILL_CREATED_ROUTING_KEY = "bill";
+    @Value(value = "${rabbitmq.exchange-name}")
+    public String EXCHANGE_NAME = "hrs-exchange";
+
+    @Value(value = "${rabbitmq.bill-created-queue}")
+    public String BILL_CREATED_QUEUE = "bill.queue";
+
+    @Value(value = "${rabbitmq.bill-created-routing-key}")
+    public String BILL_CREATED_ROUTING_KEY ;
 
     @Bean
     public MessageConverter jsonMessageConverter() {

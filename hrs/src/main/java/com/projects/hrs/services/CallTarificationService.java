@@ -6,10 +6,13 @@ import com.projects.hrs.dto.BillDto;
 import com.projects.hrs.entities.Abonent;
 import com.projects.hrs.entities.Limit;
 import com.projects.hrs.repositories.AbonentRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Slf4j
@@ -17,13 +20,16 @@ import java.time.LocalTime;
 public class CallTarificationService {
     private final AbonentRepository abonentRepository;
     private final RabbitTemplate rabbitTemplate;
+    private final RabbitMqConfiguration rabbitMqConfiguration;
 
     public CallTarificationService(
             AbonentRepository abonentRepository,
-            RabbitTemplate rabbitTemplate
+            RabbitTemplate rabbitTemplate,
+            RabbitMqConfiguration rabbitMqConfiguration
     ){
         this.abonentRepository = abonentRepository;
         this.rabbitTemplate = rabbitTemplate;
+        this.rabbitMqConfiguration = rabbitMqConfiguration;
     }
 
     /**
@@ -83,31 +89,33 @@ public class CallTarificationService {
         } else {
             if (callType.equals(CallType.INCOMING.getCallType())) {
                 abonent.getBalance().setAmountOfMinutesForIncomingCall(balance);
-                log.info(abonent.getBalance().getAmountOfMinutesForIncomingCall() + "");
+                log.info("{}", abonent.getBalance().getAmountOfMinutesForIncomingCall());
                 abonentRepository.save(abonent);
             } else {
                 abonent.getBalance().setAmountOfMinutesForOutcomingCall(balance);
-                log.info(abonent.getBalance().getAmountOfMinutesForOutcomingCall() + "");
+                log.info("{}", abonent.getBalance().getAmountOfMinutesForOutcomingCall());
                 abonentRepository.save(abonent);
             }
         }
     }
 
     public void payMonthlyPayment(Long abonentId, int paymentPeriodInDays) {
-//        Abonent abonent = abonentRepository.findById(abonentId)
-//                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
-//
-//        LocalDateTime tariffActivatedAt = abonent.getCreatedAt();
-//
-//        if (tariffActivatedAt != null && Duration.between(tariffActivatedAt, LocalDateTime.now()).toDays() >= 30) {
-//            sendBillQueue(abonent.getId(), abonent.getTariff().getTariffParameters().getPrice());
-//        }
+        Abonent abonent = abonentRepository.findById(abonentId)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
+
+        LocalDateTime payDay = abonent.getNextPayDay();
+
+        if (payDay != null && Duration.between(payDay, LocalDateTime.now()).toDays() >= 30) {
+            abonent.setNextPayDay(payDay.plusDays(paymentPeriodInDays));
+            abonentRepository.save(abonent);
+            sendBillQueue(abonent.getId(), abonent.getTariff().getTariffParameters().getPrice());
+        }
     }
 
     public void sendBillQueue(Long abonentId, BigDecimal totalPrice){
         rabbitTemplate.convertAndSend(
-                RabbitMqConfiguration.EXCHANGE_NAME,
-                RabbitMqConfiguration.BILL_CREATED_ROUTING_KEY,
+                rabbitMqConfiguration.EXCHANGE_NAME,
+                rabbitMqConfiguration.BILL_CREATED_ROUTING_KEY,
                 BillDto.builder().abonentId(abonentId).totalPrice(totalPrice).build()
         );
     }

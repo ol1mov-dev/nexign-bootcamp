@@ -1,5 +1,6 @@
 package com.projects.brt.services;
 
+import com.projects.brt.controllers.requests.CreateAbonentRequest;
 import com.projects.brt.dto.AbonentDto;
 import com.projects.brt.entities.Abonent;
 import com.projects.brt.repositories.AbonentRepository;
@@ -31,7 +32,7 @@ class AbonentServiceTest {
     @DisplayName("Создание абонента должно возвращать ID")
     void createAbonent_shouldReturnAbonentId() {
         // Подготовка данных: создаем DTO абонента, который будет передан в сервис
-        AbonentDto abonentDto = AbonentDto
+        CreateAbonentRequest createAbonentRequest = CreateAbonentRequest
                 .builder()
                 .firstName("A")
                 .lastName("B")
@@ -43,18 +44,18 @@ class AbonentServiceTest {
         // Создаем объект абонента, который должен вернуться из заглушки репозитория после сохранения
         Abonent savedAbonent = Abonent.builder()
                 .id(1L) // Репозиторий вернет абонента с ID = 1
-                .firstName(abonentDto.firstName())
-                .name(abonentDto.name())
-                .middleName(abonentDto.lastName()) // Здесь предполагается, что lastName = отчество
-                .msisdn(abonentDto.msisdn())
-                .balance(abonentDto.balance())
+                .firstName(createAbonentRequest.firstName())
+                .name(createAbonentRequest.name())
+                .middleName(createAbonentRequest.lastName()) // Здесь предполагается, что lastName = отчество
+                .msisdn(createAbonentRequest.msisdn())
+                .balance(createAbonentRequest.balance())
                 .build();
 
         // Заглушка поведения репозитория: возвращаем сохраненного абонента
         when(abonentRepository.save(Mockito.any(Abonent.class))).thenReturn(savedAbonent);
 
         // Вызов метода create() в сервисе
-        ResponseEntity<Long> response = abonentService.create(abonentDto);
+        ResponseEntity<Long> response = abonentService.create(createAbonentRequest);
 
         // Проверка ответа: статус должен быть 200 OK, тело — ID абонента
         assertEquals(HttpStatus.OK, response.getStatusCode());

@@ -3,6 +3,7 @@ package com.projects.cdr.service;
 import com.projects.cdr.commons.CallType;
 import com.projects.cdr.configurations.RabbitMqConfiguration;
 import com.projects.cdr.dto.CdrDto;
+import com.projects.cdr.entities.User;
 import com.projects.cdr.mapper.CdrMapper;
 import com.projects.cdr.repositories.CdrRepository;
 import com.projects.cdr.repositories.UserRepository;

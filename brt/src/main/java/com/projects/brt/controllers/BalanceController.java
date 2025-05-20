@@ -1,9 +1,13 @@
 package com.projects.brt.controllers;
 
-import com.projects.brt.dto.BillDto;
+import com.projects.brt.controllers.requests.TopUpBalanceRequest;
+import com.projects.brt.controllers.responses.TopUpBalanceResponse;
 import com.projects.brt.services.BalanceService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,13 +21,8 @@ public class BalanceController {
         this.balanceService = balanceService;
     }
 
-    /**
-     * Оплата счета, который приходит из HRS
-     * @param billDto информация о счете которая приходит из HRS
-     */
-    @RabbitListener(queues = "${rabbitmq.bill-created-queue}")
-    public void payBill(BillDto billDto) {
-        log.info("Bill Received: {}", billDto.abonentId()  + " " + billDto.totalPrice());
-        balanceService.payBill(billDto);
+    @PostMapping("/top-up")
+    public ResponseEntity<TopUpBalanceResponse> topUp(@Valid @RequestBody TopUpBalanceRequest topUpBalanceRequest){
+        return balanceService.topUp(topUpBalanceRequest);
     }
 }

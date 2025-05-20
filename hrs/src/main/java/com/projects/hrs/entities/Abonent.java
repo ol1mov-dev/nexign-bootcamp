@@ -54,6 +54,10 @@ public class Abonent {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Builder.Default
+    @Column(name = "next_pay_day")
+    private LocalDateTime nextPayDay = LocalDateTime.now().plusMonths(1);
+
+    @Builder.Default
     @Column(name = "is_deleted")
     private Boolean isDeleted = false;
 }

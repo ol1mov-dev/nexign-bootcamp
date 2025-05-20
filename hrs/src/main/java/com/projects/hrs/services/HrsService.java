@@ -6,6 +6,7 @@ import com.projects.hrs.entities.Abonent;
 import com.projects.hrs.repositories.AbonentRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -22,6 +23,8 @@ public class HrsService {
         this.callTarificationService = callTarificationService;
     }
 
+
+    @RabbitListener(queues = "${rabbitmq.call-created-queue}")
     public void calculate(CallQueueDto callDto) {
         int usedMinutes = callTarificationService
                                 .getTotalCallMinutes(callDto.callDuration());
@@ -43,7 +46,6 @@ public class HrsService {
         } else {
             callTarificationService.payMonthlyPayment(abonent.getId(), paymentPeriodInDays);
             callTarificationService.subtractMinutesFromBalance(abonent, callDto.callType(), usedMinutes);
-
         }
     }
 }

@@ -2,7 +2,7 @@ spring:
   application:
     name: brt-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/brtdb
+    url: jdbc:postgresql://localhost:5433/brtdb
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -20,7 +20,6 @@ spring:
     port: 5672
     username: admin
     password: password
-
 
 server:
   port: 8082
