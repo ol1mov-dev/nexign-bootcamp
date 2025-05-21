@@ -1,6 +1,6 @@
 FROM eclipse-temurin:21-jre-alpine
 
-ARG JAR_FILE=hrs-0.0.1-SNAPSHOT.jar
+ARG JAR_FILE=crm-0.0.1-SNAPSHOT.jar
 
 WORKDIR /app
 
@@ -12,9 +12,9 @@ RUN apk add --no-cache curl \
 
 USER spring
 
-EXPOSE 8765
-
+EXPOSE 8766
+#
 #HEALTHCHECK --interval=10s --timeout=5s --retries=5 \
-#  CMD curl -f http://localhost:8765/actuator/health || exit 1
+#  CMD curl -f http://localhost:8766/actuator/health || exit 1
 
 ENTRYPOINT ["java","-jar","app.jar"]

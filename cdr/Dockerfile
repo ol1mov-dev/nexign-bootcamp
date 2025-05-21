@@ -1,40 +1,20 @@
-# Этап сборки
-FROM gradle:8.7.0-jdk17 AS build
+FROM eclipse-temurin:21-jre-alpine
+
+ARG JAR_FILE=cdr-0.0.1-SNAPSHOT.jar
+
 WORKDIR /app
 
-# Копируем только файлы сборки сначала для кэширования зависимостей
-COPY build.gradle settings.gradle ./
-COPY gradle ./gradle
-COPY gradlew ./
+COPY build/libs/${JAR_FILE} /app/app.jar
 
-# Создаем файл инициализации Gradle для решения проблем с TLS и репозиториями
-RUN echo 'systemProp.javax.net.ssl.trustStoreType=JKS' > gradle.properties && \
-    echo 'systemProp.https.protocols=TLSv1.2,TLSv1.3' >> gradle.properties && \
-    echo 'systemProp.https.cipherSuites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384' >> gradle.properties
+RUN apk add --no-cache curl \
+ && addgroup -S spring && adduser -S spring -G spring \
+ && chown -R spring:spring /app
 
-# Создаем init.gradle для управления репозиториями
-RUN echo 'allprojects { repositories { mavenCentral(); mavenLocal(); maven { url "https://repo1.maven.org/maven2/" } } }' > init.gradle
+USER spring
 
-# Копируем исходный код
-COPY src ./src
+EXPOSE 8762
 
-# Запускаем сборку с использованием инициализационного скрипта
-RUN gradle build --init-script init.gradle --no-daemon -x test || (echo "Trying alternative build method..." && \
-    gradle build --no-daemon -x test --stacktrace --info || \
-    (echo "Falling back to downloading pre-built jar..." && \
-    mkdir -p build/libs && \
-    echo "Creating dummy JAR for next stage" && \
-    touch build/libs/app.jar))
+#HEALTHCHECK --interval=10s --timeout=5s --retries=5 \
+#  CMD curl -f http://localhost:8762/actuator/health || exit 1
 
-# Этап запуска
-FROM eclipse-temurin:17-jre-alpine
-WORKDIR /app
-
-# Копируем JAR из этапа сборки
-COPY --from=build /build/libs/cdr-0.0.1-SNAPSHOT.jar app.jar
-
-# Проверяем наличие JAR
-RUN if [ ! -s app.jar ]; then echo "JAR file is empty or doesn't exist" && exit 1; fi
-
-EXPOSE 8081
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]

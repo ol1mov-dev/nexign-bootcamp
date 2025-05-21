@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMqConfiguration {
-
+//
     @Value(value = "${rabbitmq.exchange-name}")
     public String EXCHANGE_NAME;
 
@@ -21,27 +21,27 @@ public class RabbitMqConfiguration {
 
     @Value(value = "${rabbitmq.cdr-created-routing-key}")
     public String CDR_CREATED_ROUTING_KEY;
-
-    @Bean
-    public Jackson2JsonMessageConverter jsonMessageConverter() {
-        return new Jackson2JsonMessageConverter();
-    }
-
-    @Bean
-    public TopicExchange cdrsExchange() {
-        return new TopicExchange(EXCHANGE_NAME);
-    }
-
-    @Bean
-    public Queue cdrCreatedQueue() {
-        return new Queue(CDR_CREATED_QUEUE, true);
-    }
-
-    @Bean
-    public Binding orderCreatedBinding() {
-        return BindingBuilder
-                .bind(cdrCreatedQueue())
-                .to(cdrsExchange())
-                .with(CDR_CREATED_ROUTING_KEY);
-    }
+//
+//    @Bean
+//    public Jackson2JsonMessageConverter jsonMessageConverter() {
+//        return new Jackson2JsonMessageConverter();
+//    }
+//
+//    @Bean
+//    public TopicExchange cdrsExchange() {
+//        return new TopicExchange(EXCHANGE_NAME);
+//    }
+//
+//    @Bean
+//    public Queue cdrCreatedQueue() {
+//        return new Queue(CDR_CREATED_QUEUE, true);
+//    }
+//
+//    @Bean
+//    public Binding orderCreatedBinding() {
+//        return BindingBuilder
+//                .bind(cdrCreatedQueue())
+//                .to(cdrsExchange())
+//                .with(CDR_CREATED_ROUTING_KEY);
+//    }
 }
