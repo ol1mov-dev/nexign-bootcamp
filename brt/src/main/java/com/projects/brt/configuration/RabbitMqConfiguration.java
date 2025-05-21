@@ -12,17 +12,26 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMqConfiguration {
-    @Value(value = "${rabbitmq.exchange-name}")
-    public String EXCHANGE_NAME;
+    @Value(value = "${rabbitmq.brt-exchange-name}")
+    public String BRT_EXCHANGE_NAME;
 
     @Value(value = "${rabbitmq.call-created-queue}")
     public String CALL_CREATED_QUEUE;
 
     @Value(value = "${rabbitmq.bill-created-queue}")
-    public String BILL_CREATED_QUEUE = "bill.queue";
+    public String BILL_CREATED_QUEUE;
 
     @Value(value = "${rabbitmq.call-created-routing-key}")
     public String CALL_CREATED_ROUTING_KEY;
+
+    @Value(value = "${rabbitmq.cdr-exchange-name}")
+    public String CDR_EXCHANGE_NAME;
+
+    @Value(value = "${rabbitmq.cdr-created-queue}")
+    public String CDR_CREATED_QUEUE;
+
+    @Value(value = "${rabbitmq.cdr-created-routing-key}")
+    public String CDR_CREATED_ROUTING_KEY;
 
     @Bean
     public MessageConverter jsonMessageConverter() {
@@ -37,7 +46,7 @@ public class RabbitMqConfiguration {
 
     @Bean
     public TopicExchange brtExchange() {
-        return new TopicExchange(EXCHANGE_NAME);
+        return new TopicExchange(BRT_EXCHANGE_NAME);
     }
 
     @Bean
@@ -46,10 +55,29 @@ public class RabbitMqConfiguration {
     }
 
     @Bean
-    public Binding orderCreatedBinding() {
+    public TopicExchange cdrsExchange() {
+        return new TopicExchange(CDR_EXCHANGE_NAME);
+    }
+
+    @Bean
+    public Queue cdrCreatedQueue() {
+        return new Queue(CDR_CREATED_QUEUE, true);
+    }
+
+    @Bean
+    public Binding orderCreatedBindingBrt() {
         return BindingBuilder
                 .bind(callCreatedQueue())
                 .to(brtExchange())
                 .with(CALL_CREATED_ROUTING_KEY);
+    }
+
+
+    @Bean
+    public Binding orderCreatedBindingCdr() {
+        return BindingBuilder
+                .bind(cdrCreatedQueue())
+                .to(cdrsExchange())
+                .with(CDR_CREATED_ROUTING_KEY);
     }
 }

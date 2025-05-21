@@ -25,8 +25,10 @@ server:
   port: 8082
 
 rabbitmq:
-  exchange-name: brt-exchange
-  cdrs-created-queue: cdr.queue
+  brt-exchange-name: brt-exchange
   call-created-queue: call.queue
   bill-created-queue: bill.queue
   call-created-routing-key: call
+  cdr-exchange-name: cdr-exchange
+  cdr-created-queue: cdr.queue
+  cdr-created-routing-key: cdr

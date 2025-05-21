@@ -1,1 +1,5 @@
 rootProject.name = 'nexi'
+include 'brt'
+include 'cdr'
+include 'crm'
+include 'hrs'

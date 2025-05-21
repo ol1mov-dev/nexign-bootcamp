@@ -42,7 +42,7 @@ public class CallService {
      * Сохраняем
      * @param cdrs данные о звонках
      */
-    @RabbitListener(queues = "${rabbitmq.cdrs-created-queue}")
+    @RabbitListener(queues = "${rabbitmq.cdr-created-queue}")
     public void save(List<CdrDto> cdrs) {
         cdrs.forEach(cdr -> {
             boolean isFirstMsisdnOurClient = isOurClient(cdr.firstMsisdn());
@@ -142,7 +142,7 @@ public class CallService {
      */
     public void sendCallQueue(Long abonentId, String callType, String callDuration) {
         rabbitTemplate.convertAndSend(
-                rabbitMqConfiguration.EXCHANGE_NAME,
+                rabbitMqConfiguration.BRT_EXCHANGE_NAME,
                 rabbitMqConfiguration.CALL_CREATED_ROUTING_KEY,
                 CallQueueDto
                         .builder()
